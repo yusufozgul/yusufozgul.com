@@ -88,3 +88,17 @@ fastlane/test_output
 # https://github.com/johnno1962/injectionforxcode
 
 iOSInjectionProject/
+/Resources/upload-images/base/.DS_Store
+/Resources/Data/.DS_Store
+/Sources/.DS_Store
+/Sources/YusufozgulCom/.DS_Store
+/Resources/upload-images/github/.DS_Store
+/Content/.DS_Store
+/.DS_Store
+/Package.resolved
+/Resources/.DS_Store
+/Resources/upload-images/deezerSample/.DS_Store
+/.publish
+/.swiftpm
+/Resources/upload-images/.DS_Store
+/Output
