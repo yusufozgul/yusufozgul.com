@@ -27,7 +27,7 @@ struct YusufozgulCom: Website {
     // Update these properties to configure your website:
     var url = URL(string: "https://yusufozgul.com")!
     var name = "Yusuf Özgül | Blog | Resume | Portfolio"
-    var description = "Kişisel blog, yazılım hakkında paylaşımlar ve güncel projelerim."
+    var description = "Blog, Projects, ..."
     var language: Language { .turkish }
     var imagePath: Path? { nil }
     var favicon: Favicon? = .init(path: "/upload-images/favicon.png", type: "image/png")
@@ -50,5 +50,6 @@ try YusufozgulCom().publish(using: [
     .generateHTML(withTheme: .yusufozgulcom),
     .generateSiteMap(),
     .installPlugin(.verifyResourcesExist()),
+    .generateRSSFeed(including: [.blogs, .projects]),
     .deploy(using: .git("https://yusuf.ozgul@github.com/yusufozgul/YusufOzgul-Deploys"))
 ])
