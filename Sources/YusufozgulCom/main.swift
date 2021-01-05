@@ -1,6 +1,7 @@
 import Foundation
 import Publish
 import Plot
+import yusufozgul_comTheme
 import ReadingTimePublishPlugin
 import TwitterPublishPlugin
 import SplashPublishPlugin
@@ -8,7 +9,8 @@ import ImageAttributesPublishPlugin
 import LinkAttributesPublishPlugin
 import GistPublishPlugin
 import VerifyResourcesExistPublishPlugin
-import yusufozgul_comTheme
+import YoutubePublishPlugin
+import PublishGallery
 
 // This type acts as the configuration for your website.
 struct YusufozgulCom: Website {
@@ -44,6 +46,8 @@ try YusufozgulCom().publish(using: [
     .installPlugin(.linkAttributes()),
     .installPlugin(.imageAttributes()),
     .installPlugin(.splash(withClassPrefix: "")),
+    .installPlugin(.youtube()),
+    .installPlugin(.publishGallery()),
     .addMarkdownFiles(),
     .copyFiles(at: "/Resources/upload-images", to: "/upload-images"),
     .installPlugin(.readingTime(wordsPerMinute: 40)),
