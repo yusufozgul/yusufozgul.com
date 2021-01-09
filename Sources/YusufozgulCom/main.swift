@@ -39,21 +39,22 @@ struct YusufozgulCom: Website {
     }
 }
 
-// This will generate your website using the built-in Foundation theme:
-try YusufozgulCom().publish(using: [
-    .installPlugin(.twitter()),
-    .installPlugin(.gist()),
-    .installPlugin(.linkAttributes()),
-    .installPlugin(.imageAttributes()),
-    .installPlugin(.splash(withClassPrefix: "")),
-    .installPlugin(.youtube()),
-    .installPlugin(.publishGallery()),
-    .addMarkdownFiles(),
-    .copyFiles(at: "/Resources/upload-images", to: "/upload-images"),
-    .installPlugin(.readingTime(wordsPerMinute: 40)),
-    .generateHTML(withTheme: .yusufozgulcom),
-    .generateSiteMap(),
-    .installPlugin(.verifyResourcesExist()),
-    .generateRSSFeed(including: [.blogs, .projects]),
-    .deploy(using: .git("https://yusuf.ozgul@github.com/yusufozgul/YusufOzgul-Deploys"))
-])
+try YusufozgulCom().publish(withTheme: .yusufozgulcom,
+                            indentation: nil,
+                            at: nil,
+                            rssFeedSections: [.blogs, .projects],
+                            rssFeedConfig: nil,
+                            deployedUsing: .git("https://yusuf.ozgul@github.com/yusufozgul/YusufOzgul-Deploys"),
+                            additionalSteps: [.installPlugin(.readingTime(wordsPerMinute: 40)),
+                                              .generateSiteMap(),
+                                              .installPlugin(.verifyResourcesExist()),
+                                              .generateRSSFeed(including: [.blogs, .projects]),
+                            ],
+                            plugins: [.twitter(),
+                                      .youtube(),
+                                      .gist(),
+                                      .linkAttributes(),
+                                      .imageAttributes(),
+                                      .splash(withClassPrefix: ""),
+                                      .publishGallery()
+                            ])

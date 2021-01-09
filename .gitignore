@@ -102,3 +102,4 @@ iOSInjectionProject/
 /.swiftpm
 /Resources/upload-images/.DS_Store
 /Output
+.DS_Store
