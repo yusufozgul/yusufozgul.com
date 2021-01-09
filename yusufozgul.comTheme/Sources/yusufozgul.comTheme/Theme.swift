@@ -33,7 +33,7 @@ public extension Theme {
     static var yusufozgulcom: Self {
         Theme(
             htmlFactory: ThemeHTMLFactory(),
-            resourcePaths: ["Resources/CSS/styles.css", "Resources/CSS/aboutStyles.css"]
+            resourcePaths: ["Resources/CSS/styles.css", "Resources/CSS/aboutStyles.css", "Resources/CSS/navigationStyle.css"]
         )
     }
 }
@@ -44,22 +44,9 @@ struct ThemeHTMLFactory<Site: Website>: HTMLFactory {
             .lang(context.site.language),
             .head(for: index, on: context.site),
             .body(
-                .header(for: context, selectedSection: nil),
+                .header(for: context, selectedSection: context.sections.ids.filter({ $0.rawValue == SectionID.home.rawValue}).first),
                 .class("main-wrapper"),
-                
-                // Projects
-                .div(
-                    .class("index page wrapper content clearfix "),
-                    .div(
-                        .class("section-header float-container"),
-                        .h1("👨‍💻 Projects")
-                    ),
-                    .div(
-                        .class("projects-ul"),
-                        .indexProjectList(for: projects.items, on: context.site)
-                    )
-                ),
-//                 Articles
+//              Articles
                 .wrapper(
                     .a(
                         .href("./blogs"),
@@ -73,6 +60,19 @@ struct ThemeHTMLFactory<Site: Website>: HTMLFactory {
                         .class("browse-all"),
                         .href("./blogs"),
                         .text("Browse all \(context.allItems(sortedBy: \.date, order: .descending).filter { $0.sectionID.rawValue == SectionID.blogs.rawValue }.count) articles")
+                    )
+                ),
+                
+//              Projects
+                .div(
+                    .class("index page wrapper content clearfix "),
+                    .div(
+                        .class("section-header float-container"),
+                        .h1("👨‍💻 Projects")
+                    ),
+                    .div(
+                        .class("projects-ul"),
+                        .indexProjectList(for: projects.items, on: context.site)
                     )
                 ),
                 .br(),
@@ -89,7 +89,7 @@ struct ThemeHTMLFactory<Site: Website>: HTMLFactory {
             .head(for: section, on: context.site),
             .if(section.id.rawValue == SectionID.about.rawValue, .head(for: section, on: context.site, stylesheetPaths: ["/aboutStyles.css"])),
             .body(
-                .header(for: context, selectedSection: nil),
+                .header(for: context, selectedSection: section.id),
                 .class("main-wrapper"),
                 
                 .if(section.id.rawValue == SectionID.projects.rawValue,

@@ -12,180 +12,75 @@ import Publish
 extension Node where Context == HTML.BodyContext {
     static func header<T: Website>(for context: PublishingContext<T>, selectedSection: T.SectionID? ) -> Node {
         return .header(
+            .raw("<link rel=\"stylesheet\" href=\"/navigationStyle.css\" type=\"text/css\"/>"),
             .wrapper(
-                .class("header text-center"),
+                .class("header navBar"),
                 .nav(
-                    .class("navbar navbar-expand-lg navbar-dark"),
-                    .button(
-                        .class("navbar-toggler"),
-                        .data(named: "toggle", value: "collapse"),
-                        .data(named: "target", value: "#navigation"),
-                        .data(
-                            .attribute(named: "toggle", value: "collapse"),
-                            .attribute(named: "target", value: "#navigation")
-                        ),
-                        .ariaControls("navigation"),
-                        .ariaExpanded(false),
-                        .ariaLabel("toggle navigation"),
-                        .span(
-                            .class("navbar-toggler-icon")
-                        ),
-                        .div(
-                            .class("blog-name"),
-                            .h2("Yusuf's blog")
-                        )
-                    ),
                     .div(
-                        .id("navigation"),
-                        .class("collapse navbar-collapse flex-column"),
-                        .div(
-                            .class("profile-section pt-3 pt-lg-0"),
-                            .img(
-                                .class("profile-image mb-3 rounded-circle mx-auto"),
-                                .src("/upload-images/base/avatar.jpg"),
-                                .alt("image")
-                            ),
-                            .div(
-                                .class("bio mb-3"),
-                                .text("Hi, i'm Yusuf"),
-                                .br(),
-                                .a(
-                                    .text("Find out more about me"),
-                                    .href(Path("./about"))
-                                )
-                            ),
-                            .ul(
-                                .class("social-list list-inline py-3 mx-auto"),
-                                .li(
-                                    .a(
-                                        .class("socialIcon"),
-                                        .href("https://twitter.com/ysf_ozgul"),
-                                        .i(
-                                            .class("fab fa-twitter fa-fw")
-                                        )
-                                    )
-                                ),
-                                .li(
-                                    .a(
-                                        .class("socialIcon"),
-                                        .href("https://www.linkedin.com/in/yusufozgul"),
-                                        .i(
-                                            .class("fab fa-linkedin-in fa-fw")
-                                        )
-                                    )
-                                ),
-                                .li(
-                                    .a(
-                                        .class("socialIcon"),
-                                        .href("https://github.com/yusufozgul"),
-                                        .i(
-                                            .class("fab fa-github-alt fa-fw")
-                                        )
-                                    )
-                                ),
-                                .li(
-                                    .a(
-                                        .class("socialIcon"),
-                                        .href("https://www.instagram.com/yusuf.ozgul/"),
-                                        .i(
-                                            .class("fab fa-instagram fa-fw")
-                                        )
-                                    )
-                                )
-                            ),
-                            .hr()
+                        .class("navArea"),
+                        .input(
+                            .type(HTMLInputType(rawValue: "checkbox")!),
+                            .id("check")
+                        ),
+                        .label(
+                            .for("check"),
+                            .class("checkbtn"),
+                            .i(
+                                .class("fas fa-bars")
+                            )
+                        ),
+                        .label(
+                            .class("logo"),
+                            .a(
+                                .text("Yusuf Özgül"),
+                                .href("/")
+                            )
                         ),
                         .ul(
-                            .class("navbar-nav flex-column text-left"),
+                            .class("navContent"),
+                            .id("hoverEnabled"),
                             .li(
-                                .class("nav-item active"),
                                 .a(
-                                    .class("nav-link"),
-                                    .href(Path("/")),
-                                    .i(
-                                        .class("fas fa-home fa-fw mr-2")
-                                    ),
+                                    .if(selectedSection?.rawValue == SectionID.home.rawValue, .class("active")),
+                                    .href("/"),
                                     .text("Home")
                                 )
-                            )
-                            
-                        ),
-                        
-                        .ul(
-                            .class("navbar-nav flex-column text-left"),
+                            ),
                             .li(
-                                .class("nav-item active"),
                                 .a(
-                                    .class("nav-link"),
-                                    .href(Path("./about")),
-                                    .i(
-                                        .class("fas fa-user fa-fw mr-2")
-                                    ),
-                                    .text("About Me")
+                                    .if(selectedSection?.rawValue == SectionID.about.rawValue, .class("active")),
+                                    .href("/about"),
+                                    .text("About")
                                 )
-                            )
-                            
-                        ),
-                        .ul(
-                            .class("navbar-nav flex-column text-left"),
+                            ),
                             .li(
-                                .class("nav-item active"),
                                 .a(
-                                    .class("nav-link"),
-                                    .href(Path("./contact")),
-                                    .i(
-                                        .class("far fa-id-card fa-fw mr-2")
-                                    ),
+                                    .if(selectedSection?.rawValue == SectionID.contact.rawValue, .class("active")),
+                                    .href("/contact"),
                                     .text("Contact")
                                 )
-                            )
-                            
-                        ),
-                        .ul(
-                            .class("navbar-nav flex-column text-left"),
+                            ),
                             .li(
-                                .class("nav-item active"),
                                 .a(
-                                    .class("nav-link"),
-                                    .href(Path("./projects")),
-                                    .i(
-                                        .class("fas fa-terminal fa-fw mr-2")
-                                    ),
+                                    .if(selectedSection?.rawValue == SectionID.projects.rawValue, .class("active")),
+                                    .href("/projects"),
                                     .text("Projects")
                                 )
-                            )
-                            
-                        ),
-                        .ul(
-                            .class("navbar-nav flex-column text-left"),
+                            ),
                             .li(
-                                .class("nav-item active"),
                                 .a(
-                                    .class("nav-link"),
-                                    .href(Path("./blogs")),
-                                    .i(
-                                        .class("fas fa-file-alt fa-fw mr-2")
-                                    ),
+                                    .if(selectedSection?.rawValue == SectionID.blogs.rawValue, .class("active")),
+                                    .href("/blogs"),
                                     .text("Blog")
                                 )
                             )
-                            
                         )
                     )
+                    
                 )
             ),
             .script(
-                .src("https://code.jquery.com/jquery-3.4.1.min.js"),
-                .integrity("sha384-vk5WoKIaW/vJyUAd9n/wmopsmNhiy+L2Z+SBxGYnUkunIxVxAv/UtMOhba/xskxh"),
-                .attribute(named: "crossorigin", value: "anonymous")
-            ),
-            .script(
-                .src("https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"),
-                .integrity("sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"),
-                .attribute(named: "crossorigin", value: "anonymous")
-            ),
-            .script(
-                .src("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js")
+                .src("https://kit.fontawesome.com/a076d05399.js")
             )
         )
     }
