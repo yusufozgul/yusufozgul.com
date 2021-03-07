@@ -91,5 +91,11 @@ class LoadData {
                                           screenShotLink: "/upload-images/github/SS1.png"),
         ])
         
+        socialMediaLinks = .init(accounts: [
+            .init(link: "https://github.com/yusufozgul", icon: "fab fa-github", name: "Github"),
+            .init(link: "https://twitter.com/ysf_ozgul", icon: "fab fa-twitter", name: "Twitter"),
+            .init(link: "https://yusufozgul.medium.com", icon: "fab fa-medium", name: "Medium")
+        ])
+        
     }
 }

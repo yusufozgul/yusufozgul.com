@@ -28,12 +28,13 @@ extension DateFormatter {
 
 public var abouts = Abouts(education: [], experience: [])
 public var projects = Projects(items: [])
+public var socialMediaLinks = SocialMediaAccounts(accounts: [])
 
 public extension Theme {
     static var yusufozgulcom: Self {
         Theme(
             htmlFactory: ThemeHTMLFactory(),
-            resourcePaths: ["Resources/CSS/styles.css", "Resources/CSS/aboutStyles.css", "Resources/CSS/navigationStyle.css"]
+            resourcePaths: ["Resources/CSS/styles.css", "Resources/CSS/aboutStyles.css", "Resources/CSS/navigationStyle.css", "Resources/CSS/socialMediaLinks.css"]
         )
     }
 }
@@ -88,6 +89,7 @@ struct ThemeHTMLFactory<Site: Website>: HTMLFactory {
             .lang(context.site.language),
             .head(for: section, on: context.site),
             .if(section.id.rawValue == SectionID.about.rawValue, .head(for: section, on: context.site, stylesheetPaths: ["/aboutStyles.css"])),
+            .if(section.id.rawValue == SectionID.contact.rawValue, .head(for: section, on: context.site, stylesheetPaths: ["/socialMediaLinks.css"])),
             .body(
                 .header(for: context, selectedSection: section.id),
                 .class("main-wrapper"),
@@ -124,7 +126,7 @@ struct ThemeHTMLFactory<Site: Website>: HTMLFactory {
     func makeItemHTML(for item: Item<Site>, context: PublishingContext<Site>) throws -> HTML {
         HTML(
             .lang(context.site.language),
-            .head(for: item, on: context.site, stylesheetPaths: ["/styles.css", "/gallery.css"]),
+            .head(for: item, on: context.site, stylesheetPaths: ["styles.css", "/gallery.css"]),
             .body(
                 .class("item-page"),
                 .header(for: context, selectedSection: item.sectionID),
