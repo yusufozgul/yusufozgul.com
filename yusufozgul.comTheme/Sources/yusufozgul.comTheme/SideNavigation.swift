@@ -25,9 +25,7 @@ extension Node where Context == HTML.BodyContext {
                         .label(
                             .for("check"),
                             .class("checkbtn"),
-                            .i(
-                                .class("fas fa-bars")
-                            )
+                            .raw("<img src=\"/upload-images/base/menu-icon.svg\" width=\"30\" height=\"30\">")
                         ),
                         .label(
                             .class("logo"),
@@ -78,9 +76,6 @@ extension Node where Context == HTML.BodyContext {
                     )
                     
                 )
-            ),
-            .script(
-                .src("https://kit.fontawesome.com/a076d05399.js")
             )
         )
     }

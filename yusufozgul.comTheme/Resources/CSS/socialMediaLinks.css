@@ -12,8 +12,7 @@
 /* Icons */
 
 #socialMedia a {
-  color:#fff;
-  background: #DB6E82;
+  background: #e5e5e5;
   border-radius:4px;
   text-align:center;
   text-decoration:none;
@@ -22,7 +21,7 @@
   display: inline-block;
   width:60px;
   height:60px;
-  padding-top:20px;
+  padding-top:16px;
   margin:0 2px;
   -o-transition:all .5s;
   -webkit-transition: all .5s;
@@ -33,7 +32,7 @@
 }
 
 #socialMedia a:hover {
-  background: #ef92a3;
+  background: #1bc1ff;
 }
 
 /* pop-up text */

@@ -4,6 +4,7 @@ import Plot
 import yusufozgul_comTheme
 import ReadingTimePublishPlugin
 import TwitterPublishPlugin
+import Splash
 import SplashPublishPlugin
 import ImageAttributesPublishPlugin
 import LinkAttributesPublishPlugin
@@ -52,9 +53,18 @@ try YusufozgulCom().publish(withTheme: .yusufozgulcom,
                             ],
                             plugins: [.twitter(),
                                       .youtube(),
-                                      .gist(),
+                                      .gist(renderer: ColorGistRenderer()),
                                       .linkAttributes(),
                                       .imageAttributes(),
                                       .splash(withClassPrefix: ""),
                                       .publishGallery()
                             ])
+
+class ColorGistRenderer: GistRenderer {
+    func render(gist: EmbeddedGist) throws -> String {
+        let highlighter = SyntaxHighlighter(format: HTMLOutputFormat())
+        return gist.files.map { file in
+            return "<pre><code>" + highlighter.highlight(file.content) + "</pre></code>"
+        }.joined(separator: "")
+    }
+}

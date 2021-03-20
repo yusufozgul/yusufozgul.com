@@ -78,7 +78,7 @@ extension Node where Context == HTML.BodyContext {
                             .h4(.text("Technologies")),
                             .ul(.class("tech-list"), .forEach(item.technologies) { tech in
                                 .li(
-                                    .class("tag"),
+                                    .class("tech"),
                                     .text(tech)
                                 )
                                 }),

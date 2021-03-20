@@ -60,7 +60,7 @@ class LoadData {
                                           status_css: "published",
                                           appIcon: "/upload-images/wevent/wevent.png",
                                           role: "iOS Developer",
-                                          appStore_link: "https://apps.apple.com/tr/app/wevent/id1483744113",
+                                          appStore_link: "",
                                           gitHub_link: "",
                                           technologies: ["UIKit", "Combine", "Push Notification", "CloudKit"],
                                           paragraphs: ["Wevent, sana özel, yepyeni bir etkinlik platformu. Kişisel tercihlerine ​ göre etkinlik önerileri burada. Kendini geliştirmen ​ için aradığın tüm etkinlikler burada. Networking ​ile ilgili her şey burada. ONLINE ​ etkinlikler burada. Arkadaşların​ burada. Peki sen?"],
@@ -92,9 +92,9 @@ class LoadData {
         ])
         
         socialMediaLinks = .init(accounts: [
-            .init(link: "https://github.com/yusufozgul", icon: "fab fa-github", name: "Github"),
-            .init(link: "https://twitter.com/ysf_ozgul", icon: "fab fa-twitter", name: "Twitter"),
-            .init(link: "https://yusufozgul.medium.com", icon: "fab fa-medium", name: "Medium")
+            .init(link: "https://github.com/yusufozgul", icon: "github-icon.svg", name: "Github"),
+            .init(link: "https://twitter.com/ysf_ozgul", icon: "twitter-icon.svg", name: "Twitter"),
+            .init(link: "https://yusufozgul.medium.com", icon: "medium-icon.svg", name: "Medium")
         ])
         
     }
