@@ -24,7 +24,8 @@ struct YusufozgulCom: Website {
     }
 
     struct ItemMetadata: WebsiteItemMetadata {
-        // Add any site-specific metadata that you want to use here.
+        let isDraft: Bool?
+        let date: String
     }
 
     // Update these properties to configure your website:
@@ -32,7 +33,7 @@ struct YusufozgulCom: Website {
     var name = "Yusuf Özgül | Blog | Resume | Portfolio"
     var description = "Blog, Projects, ..."
     var language: Language { .turkish }
-    var imagePath: Path? { nil }
+    var imagePath: Path? { "/upload-images/" }
     var favicon: Favicon? = .init(path: "/upload-images/favicon.png", type: "image/png")
     
     init() {
@@ -50,6 +51,9 @@ try YusufozgulCom().publish(withTheme: .yusufozgulcom,
                                               .generateSiteMap(),
                                               .installPlugin(.verifyResourcesExist()),
                                               .generateRSSFeed(including: [.blogs, .projects]),
+                                              .removeAllItems(in: .blogs, matching: .init(matcher: { item in
+                                                item.metadata.isDraft ?? false
+                                              }))
                             ],
                             plugins: [.twitter(),
                                       .youtube(),
