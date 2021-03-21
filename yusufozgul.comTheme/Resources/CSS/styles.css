@@ -191,6 +191,14 @@ ul {
     padding-left: 25px;
 }
 
+ol {
+  padding-left: 20px;
+}
+
+.item-list {
+    padding-left: 0px;
+}
+
 .tech-list {
     padding-left: 0px;
 }

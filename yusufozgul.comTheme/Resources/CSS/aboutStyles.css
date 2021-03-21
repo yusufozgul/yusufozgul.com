@@ -170,6 +170,11 @@ display: inline-block;
 .cd-timeline-content p {
 margin: 1em 0;
 line-height: 1.6;
+color: white;
+}
+
+.cd-time-line-text {
+    color: white;
 }
 
 .cd-timeline-content::before {
@@ -191,6 +196,7 @@ border-right: 7px solid #333C42;
 .cd-timeline-content p {
   font-size: 16px;
   font-size: 1rem;
+  color: white;
 }
 .cd-timeline-content .cd-read-more, .cd-timeline-content .cd-date {
   font-size: 14px;

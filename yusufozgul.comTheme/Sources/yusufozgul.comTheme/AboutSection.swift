@@ -25,7 +25,6 @@ extension Node where Context == HTML.BodyContext {
     static func educationSection<T: Website>(on site: T, with datas: [About]) -> Node {
         return .div(
             .h1(
-                .i(.class("fas fa-briefcase")),
                 .text("Experience"),
                 .style("text-align: center;")
             ),
@@ -41,7 +40,6 @@ extension Node where Context == HTML.BodyContext {
     static func experienceSection<T: Website>(on site: T, with datas: [About]) -> Node {
         return .div(
             .h1(
-                .i(.class("fa fa-graduation-cap")),
                 .text("Education"),
                 .style("text-align: center;")
             ),
@@ -62,14 +60,27 @@ extension Node where Context == HTML.BodyContext {
             .div(
                 .div(
                     .text(data.date),
-                    .style("text-align: right;")
+                    .style("text-align: right; color: white;")
                 ),
 
                 .class("cd-timeline-content"),
-                .h2(.text(data.title)),
-                .h6(.text(data.subtitle)),
+                .h2(
+                    .text(data.title),
+                    .style("color: white;")
+                ),
+                .h6(
+                    .text(data.subtitle),
+                    .style("color: white;")),
+                
                 .forEach(data.description) { text in
-                    .ul(.li(.p(.text(text))))
+                    .ul(
+                        .li(
+                            .p(
+                                .text(text)
+                            )
+                        ),
+                        .style("color: white;")
+                    )
                 },
 
                 .table(
@@ -77,6 +88,7 @@ extension Node where Context == HTML.BodyContext {
                         .forEach(data.refLink ?? []) { link in
                             .td(
                                 .a(
+                                    .style("color: white;"),
                                     .text(link[AboutLinkType.name] ?? ""),
                                     .text(" "),
                                     .href(link[AboutLinkType.link] ?? "")
