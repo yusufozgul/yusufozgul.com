@@ -5,7 +5,7 @@ tags: Swift, Publish
 description: Publish'e metadata kullanarak yeni özellikler ekleyelim.
 ---
 
-Bir önceki yazımda Publish ile nasıl swift ile static web siteleri oluşturabilirizden bahsetmiştim, okumadıysanız: [https://yusufozgul.com/blogs/PublishNedirNasilKullanilir/](https://yusufozgul.com/blogs/PublishNedirNasilKullanilir/). Publish'e draft ve zamanlanmış yazılar özelliğini nasıl getirebiliriz? Benim kullandığım eklentilerin nasıl kullanılacağını yazdığım samples adında bir yazı var, haliyle bu yazının yayınlanmasını istemiyorum. Bu sorunu çözmek için Publish'e iki adet pr açılmış ancak her ikiside kabul edilmemiş. Sebebi ise bunun zaten kolayca yapılabiliyor olması. Hadi nasıl yapılır bakalım.
+Bir önceki yazımda Publish ile nasıl swift ile static web siteleri oluşturabilirizden bahsetmiştim, okumadıysanız: [Publish Nedir Nasil Kullanilir](https://yusufozgul.com/blogs/PublishNedirNasilKullanilir/). Publish'e draft ve zamanlanmış yazılar özelliğini nasıl getirebiliriz? Benim kullandığım eklentilerin nasıl kullanılacağını yazdığım samples adında bir yazı var, haliyle bu yazının yayınlanmasını istemiyorum. Bu sorunu çözmek için Publish'e iki adet pr açılmış ancak her ikiside kabul edilmemiş. Sebebi ise bunun zaten kolayca yapılabiliyor olması. Hadi nasıl yapılır bakalım.
 
 Bir yazı oluştururken en başına aşağıdaki gibi bir alan ekliyoruz. Bu alan başlık, açıklama, tarih ve tag'lerden oluşuyor.
 
@@ -32,7 +32,7 @@ Yazının metadatalar kısmına yeni bir metadata ekleyelim.
 isDraft: true
 ```
 
-1. Metadatayı tanımlayalım:
+2. Metadatayı tanımlayalım:
 
 WebSite struct'ının içerisinde metadata için bir struct daha bulunacak. Buraya yeni metadatayı ekleyelim.
 
@@ -44,7 +44,7 @@ struct ItemMetadata: WebsiteItemMetadata {
 
 Nullable yaptım çünkü sadece draft olan yazıları belirmek yeterli olsun diye.
 
-1. Metadata kontrolü yapalım:
+3. Metadata kontrolü yapalım:
 
 Publish derlenirken eklentileri verdiğimiz, adımları belirlediğimiz kısma yeni bir alan ekleyeceğiz.
 
