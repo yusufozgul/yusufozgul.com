@@ -1,11 +1,13 @@
-FROM swift:slim as build
+FROM swift:latest as build
 
-COPY Package.swift .
-RUN swift package resolve
+WORKDIR /build
+
 COPY . .
 
 RUN swift run
 
-
 FROM nginx:alpine
-COPY Output/ /usr/share/nginx/html
+
+RUN rm /usr/share/nginx/html/index.html
+
+COPY --from=build /build/Output /usr/share/nginx/html

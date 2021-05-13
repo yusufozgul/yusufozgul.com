@@ -20,7 +20,7 @@ let package = Package(
                    .package(url: "https://github.com/thomaslupo/GistPublishPlugin", from: "0.1.0"),
                    .package(url: "https://github.com/wacumov/VerifyResourcesExistPublishPlugin", from: "0.1.0"),
                    .package(url: "https://github.com/tanabe1478/YoutubePublishPlugin.git", from: "0.1.0"),
-                   .package(url: "https://github.com/Ze0nC/PublishGallery", .branch("main"))
+                   //.package(url: "https://github.com/Ze0nC/PublishGallery", .branch("main"))
     ],
     targets: [
         .target(
@@ -35,7 +35,8 @@ let package = Package(
                            "GistPublishPlugin",
                            "VerifyResourcesExistPublishPlugin",
                            "YoutubePublishPlugin",
-                           "PublishGallery"]
+                           //"PublishGallery"
+            ]
         )
     ]
 )

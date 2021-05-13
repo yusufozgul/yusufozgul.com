@@ -11,7 +11,7 @@ import LinkAttributesPublishPlugin
 import GistPublishPlugin
 import VerifyResourcesExistPublishPlugin
 import YoutubePublishPlugin
-import PublishGallery
+//import PublishGallery
 
 // This type acts as the configuration for your website.
 struct YusufozgulCom: Website {
@@ -61,7 +61,7 @@ try YusufozgulCom().publish(withTheme: .yusufozgulcom,
                                       .linkAttributes(),
                                       .imageAttributes(),
                                       .splash(withClassPrefix: ""),
-                                      .publishGallery()
+                                      //.publishGallery()
                             ])
 
 class ColorGistRenderer: GistRenderer {
