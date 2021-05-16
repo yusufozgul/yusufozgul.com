@@ -18,6 +18,34 @@ enum SectionID: String, WebsiteSectionID {
     case blogs
 }
 
+enum Tags: String {
+    case docker
+    case swift
+    case publish
+    case collectionView
+    case software
+    case codable
+    case json
+    case rest
+    case goLang
+    case apple
+    case other
+    
+    static func find(tag: String) -> Tags {
+        if tag == "Docker" { return .docker }
+        if tag == "Swift" { return .swift }
+        if tag == "Publish" { return .publish }
+        if tag == "CollectionView" { return .collectionView }
+        if tag == "Software" { return .software }
+        if tag == "Codable" { return .codable }
+        if tag == "JSON" { return .json }
+        if tag == "REST" { return .rest }
+        if tag == "Go Lang" || tag == "Go" { return .goLang }
+        if tag == "Apple" { return .apple }
+        return .other
+    }
+}
+
 extension DateFormatter {
     static var blog: DateFormatter = {
         let formatter = DateFormatter()
@@ -257,7 +285,7 @@ extension Node where Context == HTML.BodyContext {
     static func tagList<T: Website>(for item: Item<T>, on site: T) -> Node {
         return .ul(.class("tag-list"), .forEach(item.tags) { tag in
             .li(
-                .class("variant-\(Int.random(in: 0...7))"),
+                .class(Tags.find(tag: tag.string).rawValue),
                 .a(
                     .text(tag.string),
                     .href(Path("./\(site.path(for: tag))"))

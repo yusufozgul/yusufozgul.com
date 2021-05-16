@@ -153,38 +153,6 @@ footer {
     }
 }
 
-.variant-0 {
-    background-color: #66293c
-}
-
-.variant-1 {
-    background-color: #913e37
-}
-
-.variant-2 {
-    background-color: #ca7618
-}
-
-.variant-3 {
-    background-color: #a38138
-}
-
-.variant-4 {
-    background-color: #2f7176
-}
-
-.variant-5 {
-    background-color: #246089
-}
-
-.variant-6 {
-    background-color: #498840
-}
-
-.variant-7 {
-    background-color: #484781
-}
-
 ul {
     margin-top: 0;
     margin-bottom: 1rem;
@@ -391,3 +359,50 @@ pre code .preprocessing {
     color: #b68a00;
 }
 
+/**
+ *  Tags
+ */
+
+.docker {
+    background-color: #66293c
+}
+
+.swift {
+    background-color: #913e37
+}
+
+.publish {
+    background-color: #ca7618
+}
+
+.collectionView {
+    background-color: #a38138
+}
+
+.software {
+    background-color: #2f7176
+}
+
+.codable {
+    background-color: #246089
+}
+
+.json {
+    background-color: #498840
+}
+
+.rest {
+    background-color: #484781
+}
+
+.goLang {
+    background-color: #545497
+}
+
+.apple {
+    background-color: #4C7C87
+}
+
+.other {
+    background-color: #BB534A
+}
