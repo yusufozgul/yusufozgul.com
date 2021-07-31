@@ -10,14 +10,6 @@ import Plot
 import Publish
 import ReadingTimePublishPlugin
 
-enum SectionID: String, WebsiteSectionID {
-    case home
-    case about
-    case contact
-    case projects
-    case blogs
-}
-
 enum Tags: String {
     case docker
     case swift
@@ -73,26 +65,25 @@ struct ThemeHTMLFactory<Site: Website>: HTMLFactory {
             .lang(context.site.language),
             .head(for: index, on: context.site),
             .body(
-                .header(for: context, selectedSection: context.sections.ids.filter({ $0.rawValue == SectionID.home.rawValue}).first),
+                .component(ThemeHeader(context: context,
+                                       selectedSection: context.sections.ids.filter({ $0.rawValue == YusufozgulCom.SectionID.home.rawValue}).first)),
                 .class("main-wrapper"),
-//              Articles
+                //              Articles
                 .wrapper(
                     .a(
                         .href("./blogs"),
                         .h1("🚀 Latest articles")
                     ),
-                    .itemList(
-                        for: Array(context.allItems(sortedBy: \.date, order: .descending).filter { $0.sectionID.rawValue == SectionID.blogs.rawValue }.prefix(3)),
-                        on: context.site
+                    .component(ThemeItemList(items: Array(context.allItems(sortedBy: \.date, order: .descending).filter { $0.sectionID.rawValue == YusufozgulCom.SectionID.blogs.rawValue }.prefix(3)), site: context.site)
                     ),
                     .a(
                         .class("browse-all"),
                         .href("./blogs"),
-                        .text("Browse all \(context.allItems(sortedBy: \.date, order: .descending).filter { $0.sectionID.rawValue == SectionID.blogs.rawValue }.count) articles")
+                        .text("Browse all \(context.allItems(sortedBy: \.date, order: .descending).filter { $0.sectionID.rawValue == YusufozgulCom.SectionID.blogs.rawValue }.count) articles")
                     )
                 ),
                 
-//              Projects
+                //              Projects
                 .div(
                     .class("index page wrapper content clearfix "),
                     .div(
@@ -106,7 +97,7 @@ struct ThemeHTMLFactory<Site: Website>: HTMLFactory {
                 ),
                 .br(),
                 .br(),
-                .footer(for: context.site)
+                .component(ThemeFooter())
                 
             )
         )
@@ -116,13 +107,13 @@ struct ThemeHTMLFactory<Site: Website>: HTMLFactory {
         HTML(
             .lang(context.site.language),
             .head(for: section, on: context.site),
-            .if(section.id.rawValue == SectionID.about.rawValue, .head(for: section, on: context.site, stylesheetPaths: ["/aboutStyles.css"])),
-            .if(section.id.rawValue == SectionID.contact.rawValue, .head(for: section, on: context.site, stylesheetPaths: ["/socialMediaLinks.css"])),
+            .if(section.id.rawValue == YusufozgulCom.SectionID.about.rawValue, .head(for: section, on: context.site, stylesheetPaths: ["/aboutStyles.css"])),
+            .if(section.id.rawValue == YusufozgulCom.SectionID.contact.rawValue, .head(for: section, on: context.site, stylesheetPaths: ["/socialMediaLinks.css"])),
             .body(
-                .header(for: context, selectedSection: section.id),
+                .component(ThemeHeader(context: context, selectedSection: section.id)),
                 .class("main-wrapper"),
                 
-                .if(section.id.rawValue == SectionID.projects.rawValue,
+                .if(section.id.rawValue == YusufozgulCom.SectionID.projects.rawValue,
                     .wrapper(
                         .div(
                             .class("projectListSpacing"),
@@ -130,23 +121,24 @@ struct ThemeHTMLFactory<Site: Website>: HTMLFactory {
                         )
                     )
                 ),
-                .if(section.id.rawValue == SectionID.contact.rawValue,
+                .if(section.id.rawValue == YusufozgulCom.SectionID.contact.rawValue,
                     .wrapper(
                         .h1(.text(section.title)),
                         .contactForm(on: context.site)
                     )
                 ),
-                .if(section.id.rawValue == SectionID.about.rawValue,
+                .if(section.id.rawValue == YusufozgulCom.SectionID.about.rawValue,
                     .wrapper(
                         .h1(.text(section.title)),
                         .aboutPage(on: context.site)
                     )
                 ),
-                .if(section.id.rawValue == SectionID.blogs.rawValue, .wrapper(
+                .if(section.id.rawValue == YusufozgulCom.SectionID.blogs.rawValue, .wrapper(
                     .h1(.text(section.title)),
-                    .itemList(for: Array(context.allItems(sortedBy: \.date, order: .descending).filter { $0.sectionID.rawValue == "blogs" }), on: context.site)
+                    .component(ThemeItemList(items: Array(context.allItems(sortedBy: \.date, order: .descending).filter { $0.sectionID.rawValue == "blogs" }), site: context.site)
+                    )
                 )),
-                .footer(for: context.site)
+                .component(ThemeFooter())
             )
         )
     }
@@ -157,7 +149,7 @@ struct ThemeHTMLFactory<Site: Website>: HTMLFactory {
             .head(for: item, on: context.site, stylesheetPaths: ["styles.css", "/gallery.css"]),
             .body(
                 .class("item-page"),
-                .header(for: context, selectedSection: item.sectionID),
+                .component(ThemeHeader(context: context, selectedSection: item.sectionID)),
                 .class("main-wrapper"),
                 .wrapper(
                     .h2(
@@ -166,12 +158,12 @@ struct ThemeHTMLFactory<Site: Website>: HTMLFactory {
                     ),
                     .a(
                         .p(
-                           .text(DateFormatter.blog.string(from: item.date)),
+                            .text(DateFormatter.blog.string(from: item.date)),
                             .br(),
                             .text("Reading \(item.readingTime.minutes) minutes")
                         )
                     ),
-                    .tagList(for: item, on: context.site),
+                    .component(ThemeTagList(tags: item.tags, site: context.site)),
                     .div(
                         .class("post-description"),
                         .div(
@@ -179,7 +171,7 @@ struct ThemeHTMLFactory<Site: Website>: HTMLFactory {
                         )
                     )
                 ),
-                .footer(for: context.site)
+                .component(ThemeFooter())
             )
         )
     }
@@ -189,10 +181,10 @@ struct ThemeHTMLFactory<Site: Website>: HTMLFactory {
             .lang(context.site.language),
             .head(for: page, on: context.site),
             .body(
-                .header(for: context, selectedSection: nil),
+                .component(ThemeHeader(context: context, selectedSection: nil)),
                 .class("main-wrapper"),
                 .wrapper(.contentBody(page.body)),
-                .footer(for: context.site)
+                .component(ThemeFooter())
             )
         )
     }
@@ -202,7 +194,7 @@ struct ThemeHTMLFactory<Site: Website>: HTMLFactory {
             .lang(context.site.language),
             .head(for: page, on: context.site),
             .body(
-                .header(for: context, selectedSection: nil),
+                .component(ThemeHeader(context: context, selectedSection: nil)),
                 .class("main-wrapper"),
                 .wrapper(
                     .h1("Browse all tags"),
@@ -219,7 +211,7 @@ struct ThemeHTMLFactory<Site: Website>: HTMLFactory {
                         }
                     )
                 ),
-                .footer(for: context.site)
+                .component(ThemeFooter())
             )
         )
     }
@@ -229,7 +221,7 @@ struct ThemeHTMLFactory<Site: Website>: HTMLFactory {
             .lang(context.site.language),
             .head(for: page, on: context.site),
             .body(
-                .header(for: context, selectedSection: nil),
+                .component(ThemeHeader(context: context, selectedSection: nil)),
                 .class("main-wrapper"),
                 .wrapper(
                     .h1(
@@ -241,16 +233,13 @@ struct ThemeHTMLFactory<Site: Website>: HTMLFactory {
                         .text("Browse all tags"),
                         .href(Path("./\(context.site.tagListPath)"))
                     ),
-                    .itemList(
-                        for: context.items(
-                            taggedWith: page.tag,
-                            sortedBy: \.date,
-                            order: .descending
-                        ),
-                        on: context.site
+                    .component(ThemeItemList(items: context.items(taggedWith: page.tag,
+                                                                  sortedBy: \.date,
+                                                                  order: .descending),
+                                             site: context.site)
                     )
                 ),
-                .footer(for: context.site)
+                .component(ThemeFooter())
             )
         )
     }
@@ -260,62 +249,91 @@ extension Node where Context == HTML.BodyContext {
     static func wrapper(_ nodes: Node...) -> Node {
         .div(.class("wrapper"), .group(nodes))
     }
-    
-    static func itemList<T: Website>(for items: [Item<T>], on site: T) -> Node {
-        return .ul(
-            .class("item-list"),
-            .forEach(items) { item in
-                .li(.article(
-                    .h1(.a(
-                        .href(Path(".\(item.path.absoluteString)")),
-                        .text(item.title)
-                        )),
-                    .a(
-                        .text(DateFormatter.blog.string(from: item.date)),
-                        .br(),
-                        .text("Reading \(item.readingTime.minutes) minutes")
-                    ),
-                    .tagList(for: item, on: site),
-                    .p(.text(item.description))
-                    ))
-            }
-        )
+}
+
+struct ThemeWrapper: Component {
+    var nodes: [Node<HTML.BodyContext>]
+    @ComponentBuilder public var content: ContentProvider
+
+    init(nodes: [Node<HTML.BodyContext>], @ComponentBuilder content: @escaping ContentProvider) {
+        self.content = content
+        self.nodes = nodes
     }
     
-    static func tagList<T: Website>(for item: Item<T>, on site: T) -> Node {
-        return .ul(.class("tag-list"), .forEach(item.tags) { tag in
-            .li(
-                .class(Tags.find(tag: tag.string).rawValue),
-                .a(
-                    .text(tag.string),
-                    .href(Path("./\(site.path(for: tag))"))
-                ))
-            })
-    }
-    
-    static func footer<T: Website>(for site: T) -> Node {
-        return .footer(
-            .p(
-                .text("Generated using "),
-                .a(
-                    .text("Publish"),
-                    .href("https://github.com/johnsundell/publish")
-                )
-            ),
-            .p(
-                .a(
-                .text("RSS feed"),
-                .href("/feed.rss")
-                )
-            ),
-            .p(
-                .a(
-                    .text("Developed Yusuf Özgül"),
-                    .href("https://github.com/yusufozgul")
-                )
-            )
-        )
+    var body: Component {
+        Div {
+            Node.group(nodes)
+            content()
+        }
+        .class("wrapper")
     }
 }
 
+struct ThemeFooter: Component {
+    var body: Component {
+        Footer {
+            Paragraph {
+                Link("Generated using Publish", url: "https://github.com/johnsundell/publish")
+            }
+            
+            Paragraph {
+                Link("RSS feed", url: "/feed.rss")
+            }
+            
+            Paragraph {
+                Link("Developed Yusuf Özgül", url: "https://github.com/yusufozgul")
+            }
+        }
+    }
+}
 
+struct ThemeTagList<T: Website>: Component {
+    var tags: [Tag]
+    var site: T
+    var body: Component {
+        List {
+            for tag in tags {
+                ListItem {
+                    Link(tag.string, url: "/\(site.path(for: tag))")
+                }
+                .class(Tags.find(tag: tag.string).rawValue)
+            }
+        }
+        .class("tag-list")
+    }
+}
+
+struct ThemeItemList<T: Website>: Component {
+    var items: [Item<T>]
+    var site: T
+    
+    var body: Component {
+        List {
+            for item in items {
+                ListItem {
+                    Article {
+                        H1 {
+                            Link(item.title, url: ".\(item.path.absoluteString)")
+                        }
+                        Text(DateFormatter.blog.string(from: item.date))
+                        Text("Reading \(item.readingTime.minutes) minutes")
+                        ThemeTagList(tags: item.tags, site: site)
+                        Paragraph {
+                            Text(item.description)
+                        }
+                    }
+                }
+            }
+        }
+        .class("item-list")
+    }
+}
+
+//struct ThemeTagDetails<Site: Website>: Component {
+//    var context: PublishingContext<Site>
+//    
+//    var body: Component {
+//        
+//        
+//    }
+//}

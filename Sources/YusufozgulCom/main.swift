@@ -1,7 +1,6 @@
 import Foundation
 import Publish
 import Plot
-import yusufozgul_comTheme
 import ReadingTimePublishPlugin
 import TwitterPublishPlugin
 import Splash

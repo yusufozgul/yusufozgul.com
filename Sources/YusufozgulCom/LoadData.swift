@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import yusufozgul_comTheme
 
 class LoadData {
     class func load() {
