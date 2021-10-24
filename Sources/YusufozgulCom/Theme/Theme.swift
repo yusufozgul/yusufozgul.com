@@ -72,7 +72,7 @@ struct ThemeHTMLFactory<Site: Website>: HTMLFactory {
                 .wrapper(
                     .a(
                         .href("./blogs"),
-                        .h1("🚀 Latest articles")
+                        .h1("🚀 Latest Articles")
                     ),
                     .component(ThemeItemList(items: Array(context.allItems(sortedBy: \.date, order: .descending).filter { $0.sectionID.rawValue == YusufozgulCom.SectionID.blogs.rawValue }.prefix(3)), site: context.site)
                     ),
