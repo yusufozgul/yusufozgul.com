@@ -313,7 +313,7 @@ struct ThemeItemList<T: Website>: Component {
                 ListItem {
                     Article {
                         H1 {
-                            Link(item.title, url: ".\(item.path.absoluteString)")
+                            Link(item.title, url: "\(item.path.absoluteString)")
                         }
                         Text(DateFormatter.blog.string(from: item.date))
                         Text("Reading \(item.readingTime.minutes) minutes")
@@ -328,12 +328,3 @@ struct ThemeItemList<T: Website>: Component {
         .class("item-list")
     }
 }
-
-//struct ThemeTagDetails<Site: Website>: Component {
-//    var context: PublishingContext<Site>
-//    
-//    var body: Component {
-//        
-//        
-//    }
-//}
