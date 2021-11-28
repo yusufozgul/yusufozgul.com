@@ -1,0 +1,71 @@
+<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"/><meta name="og:site_name" content="Yusuf Özgül | Blog | Resume | Portfolio"/><link rel="canonical" href="https://yusufozgul.com/blogs/Dependency-Injection-1"/><meta name="twitter:url" content="https://yusufozgul.com/blogs/Dependency-Injection-1"/><meta name="og:url" content="https://yusufozgul.com/blogs/Dependency-Injection-1"/><title>Dependency Injection - 1 | Yusuf Özgül | Blog | Resume | Portfolio</title><meta name="twitter:title" content="Dependency Injection - 1 | Yusuf Özgül | Blog | Resume | Portfolio"/><meta name="og:title" content="Dependency Injection - 1 | Yusuf Özgül | Blog | Resume | Portfolio"/><meta name="description" content="Temiz kodlar, daha iyi test edilebilirlik ve daha iyi kod: Dependency injection"/><meta name="twitter:description" content="Temiz kodlar, daha iyi test edilebilirlik ve daha iyi kod: Dependency injection"/><meta name="og:description" content="Temiz kodlar, daha iyi test edilebilirlik ve daha iyi kod: Dependency injection"/><meta name="twitter:card" content="summary"/><link rel="stylesheet" href="/styles.css" type="text/css"/><link rel="stylesheet" href="/gallery.css" type="text/css"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><link rel="shortcut icon" href="/upload-images/favicon.png" type="image/png"/><link rel="alternate" href="/feed.rss" type="application/rss+xml" title="Subscribe to Yusuf Özgül | Blog | Resume | Portfolio"/><meta name="twitter:image" content="https://yusufozgul.com/upload-images/"/><meta name="og:image" content="https://yusufozgul.com/upload-images/"/></head><body class="main-wrapper"><header><link rel="stylesheet" href="/navigationStyle.css" type="text/css"/><nav class="header navBar"><div class="navArea"><input type="checkbox" id="check"/><label for="check"><img src="/upload-images/base/menu-icon.svg" width="30" height="30" class="checkbtn"/></label><label class="logo"><a href="/">Yusuf Özgül</a></label><ul class="navContent" id="hoverEnabled"><li><a href="/">Home</a></li><li><a href="/about">About</a></li><li><a href="/contact">Contact</a></li><li><a href="/projects">Projects</a></li><li><a href="/blogs" class="active">Blog</a></li></ul></div></nav></header><div class="wrapper"><h2 class="post-title">Dependency Injection - 1</h2><a><p>April 4, 2021<br/>Reading 13 minutes</p></a><ul class="tag-list"><li class="swift"><a href="/tags/swift">Swift</a></li></ul><div class="post-description"><div><h1>Dependency Injection - 1</h1><p>Dependency injection'ın tanımı wikipedia'ya göre şöyle:</p><blockquote><p>In software engineering, dependency injection is a technique in which an object receives other objects that it depends on. These other objects are called dependencies. In the typical "using" relationship the receiving object is called a client and the passed object is called a service.</p></blockquote><p>Yani sizin kodunuzun içerisinde bağımlı olduğunuz bir şeyin kodunuzun içerisinde doğrudan kullanmak yerine bağımlılığınızı kodun bir değişkenine, kodunuzun başlangıç fonksiyonuna (init, constructor) veya parametre olabilir bu şekilde aktararak kullanmak olacak. Bu sayede hem gerektiğinde bağımlılıklarımızı kolayca değiştirebileceğiz hem de test yazarken daha güvenilir ve kolay testler yazmamızı sağlayacak. Bu yazıda ise init fonksiyonunda inject etmenin nasıl olduğuna bakacağız.</p><h3>Ama Neden?</h3><p>Bir class'ın içerisinde başka bir class'ı doğrudan kullanmamızın ne zararı olabilir ki? Sonuç olarak işlemi her iki class doğru yazıldıysa yapacaktır.</p><p>Burada problemimiz şu, bir kodu test etmek istediğinizde kodun içerisindeki bağımlılıklar sizin test etmenizi engelleyebilir ya da testin her koşulda doğru sonuçlar vermesini engelleyebilir. Bir örnek ile başlayalım. Elimizde bir kod olsun ve bu kodun içerisinde Dispatch Queue ile bir işlem yapalım. Bu kodun testini yazdığımızda bu Dispatch Queue bize problem çıkartacak. Çünkü test yapılırken bu çalışmaya devam ediyor. Bizim isteğimiz ise işlemler bittikten sonra doğru sonuçlar verip vermediğini kontrol etmek. Bunun çözümü nispeten kolay. XCTest'in içerisinde bu durumlar için <code>Expectations</code> ile testin doğru çalışmasını ayarlayabiliriz.</p><p>Bir başka örnek, örneğin elimizde cihazla ilgili bilgiler veren bir class olsun. Kodumuzun içerisinde de cihaza göre işlem yapacak olalım. Doğrudan bu cihaz bilgilerini veren sınıfı kullanırsak bu durumda testimizi hangi cihazla yapıyorsak ona göre kod yazmış olalım. Peki farklı cihazda ne olacak? Çünkü bu unit test her koşulda doğru şekilde çalışmalı yoksa yazdığımız testin bir anlamı kalmıyor.</p><h3>Peki Nasıl?</h3><p>Kısa bir kod örneği ile açıklayayım:</p><pre><code><span class="keyword">import</span> UIKit
+
+<span class="keyword">class</span> Device {
+    <span class="keyword">var</span> screenSize: <span class="type">Size</span> {
+        <span class="type">UIScreen</span>.<span class="property">main</span>.<span class="property">bounds</span>.<span class="property">size</span>
+    }
+}
+
+<span class="comment">/// LOGIC</span>
+
+<span class="keyword">class</span> XYZPresenter {
+    <span class="keyword">func</span> prepareView() {
+        view.<span class="call">prepareView</span>(size: <span class="type">Device</span>.<span class="property">screenSize</span>)
+    }
+}
+
+<span class="comment">/// TEST</span>
+
+<span class="keyword">import</span> XCTest
+
+<span class="keyword">class</span> XYZPresenterTest {
+    <span class="keyword">var</span> presenter: <span class="type">XYZPresenter</span> = .<span class="keyword">init</span>()
+    
+    <span class="keyword">func</span> test_prepareView_InvokesView() {
+        <span class="call">XCTAssertFalse</span>(view.<span class="property">isPrepareViewInvokes</span>)
+        
+        presenter.<span class="call">prepareView</span>()
+        
+        <span class="call">XCTAssertTrue</span>(view.<span class="property">isPrepareViewInvokes</span>)
+        <span class="call">XCTAssertEqual</span>(view.<span class="property">prepareViewParameter</span>.<span class="property">size</span>, <span class="type">CGSize</span>(width: <span class="number">100</span>, height: <span class="number">100</span>))
+    }
+}
+</code></pre><p>Bir Device class'ımız var ve bunu doğrudan kullanmışız, test ederkende doğrudan elle değer verip test etmişiz peki farklı cihazlarda bu test çalışır mı?</p><p>Test ederkende bir if yazıp kontrol edebiliriz diyebilirsiniz ancak test'in içinde işlem yaparsanız o zaman testin testini yazmak gerekecek doğruluğundan emin olmak için.</p><h3>Çözüm:</h3><pre><code><span class="keyword">import</span> UIKit
+
+<span class="keyword">class</span> Device {
+    <span class="keyword">var</span> screenSize: <span class="type">Size</span> {
+        <span class="type">UIScreen</span>.<span class="property">main</span>.<span class="property">bounds</span>.<span class="property">size</span>
+    }
+}
+
+<span class="comment">/// LOGIC</span>
+
+<span class="keyword">class</span> XYZPresenter {
+    <span class="keyword">var</span> screenSize: <span class="type">Size</span>
+    
+    <span class="keyword">init</span>(screenSize: <span class="type">Size</span> = <span class="type">Device</span>.<span class="property">screenSize</span>) {
+        <span class="keyword">self</span>.<span class="property">screenSize</span> = screenSize
+    }
+    
+    <span class="keyword">func</span> prepareView() {
+       view.<span class="call">prepareView</span>(size: screenSize)
+    }
+}
+
+<span class="comment">/// TEST</span>
+
+<span class="keyword">import</span> XCTest
+
+<span class="keyword">class</span> XYZPresenterTest {
+    <span class="keyword">var</span> presenter: <span class="type">XYZPresenter</span> = .<span class="keyword">init</span>(screenSize: <span class="type">Size</span>(<span class="number">100</span>, <span class="number">100</span>))
+    
+    <span class="keyword">func</span> test_prepareView_InvokesView() {
+        <span class="call">XCTAssertFalse</span>(view.<span class="property">isPrepareViewInvokes</span>)
+        
+        presenter.<span class="call">prepareView</span>()
+        
+        <span class="call">XCTAssertTrue</span>(view.<span class="property">isPrepareViewInvokes</span>)
+        <span class="call">XCTAssertEqual</span>(view.<span class="property">prepareViewParameter</span>.<span class="property">size</span>, <span class="type">CGSize</span>(width: <span class="number">100</span>, height: <span class="number">100</span>))
+    }
+}
+</code></pre><p>Çözüm olarak <code>XYZPresenter</code>'ın init yani başlangıç fonksiyonunda bir parametre aldık, bu parametre bizim ihtiyacımız olan screenSize bilgisi. Böylece testimizi yaparken istediğimiz değeri verdik ve bizim verdiğimiz değere göre işlem yapılıp yapılmadığını anlamış olduk.</p><p>Buradaki işlem sadece bir örnek, çok çeşitli şekilde uygulayabilirsiniz. Özellikle Viper gibi mimariler kullanırken orada oldukça fazla protocol yazmanız ve bütün injection'larınızı protokoller üzerinden yapmalısınız. Bu konuyla alakalı bir video'yu aşağıya bırakıyorum.</p><p><a href="https://www.youtube.com/watch?v=jsrkIPfGStc">YouTube: Mimari 6: VIPER 🐍</a></p></div></div></div><footer><p><a href="https://github.com/johnsundell/publish">Generated using Publish</a></p><p><a href="/feed.rss">RSS feed</a></p><p><a href="https://github.com/yusufozgul">Developed Yusuf Özgül</a></p></footer></body></html>

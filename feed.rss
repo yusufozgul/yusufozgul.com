@@ -1,0 +1,492 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Yusuf Özgül | Blog | Resume | Portfolio</title><description>Blog, Projects, ...</description><link>https://yusufozgul.com</link><language>tr</language><lastBuildDate>Sun, 28 Nov 2021 08:48:40 +0000</lastBuildDate><pubDate>Sun, 28 Nov 2021 08:48:40 +0000</pubDate><ttl>250</ttl><atom:link href="https://yusufozgul.com/feed.rss" rel="self" type="application/rss+xml"/><item><guid isPermaLink="true">https://yusufozgul.com/blogs/parallel-async-await-TR</guid><title>Swift Paralel Async İstekler</title><description>Async Await ile birden fazla isteği aynı anda nasıl atabilirsiniz?</description><link>https://yusufozgul.com/blogs/parallel-async-await-TR</link><pubDate>Sun, 7 Nov 2021 14:00:00 +0000</pubDate><content:encoded><![CDATA[<p>Swift 5.5 ile hayatımıza giren ve geriye uyumluluk desteği ile iOS 13 ve üzerinde kullanabildiğimiz Async Await ile nasıl aynı anda birden fazla istek atabiliriz?</p><h3>Async İstek Nasıl Atılır</h3><p>Aşağıdaki örnek tipik bir async istek için kullanılabilecek fonksiyon tanımlanması</p><pre><code><span class="keyword">func</span> fetchMovie() <span class="keyword">async throws</span> -&gt; <span class="type">MovieResponse</span> {
+    <span class="comment">// ...</span>
+}
+</code></pre><p>Fonksiyonun içerisini ise şu şekilde doldurabiliriz</p><pre><code><span class="keyword">func</span> fetchMovie() <span class="keyword">async throws</span> -&gt; <span class="type">MovieResponse</span> {
+    <span class="keyword">let</span> (data, response) = <span class="keyword">try await</span> <span class="type">URLSession</span>.<span class="property">shared</span>.<span class="call">data</span>(from: url)
+        <span class="keyword">return try</span> decoder.<span class="call">decode</span>(<span class="type">MovieResponse</span>.<span class="keyword">self</span>, from: data)
+}
+</code></pre><p>Bu fonksiyonu çağırmak için ise normal fonksiyon çağrısı yapıp başına await eklememiz olacak.</p><p>Peki yukarıdaki şekilde her seferinde tek istekten veri alabiliriz aynı anda istek atıp tüm istekler gelince aynı anda nasıl alabiliriz?</p><pre><code><span class="keyword">func</span> fetchAllMovies() <span class="keyword">async</span> {
+    <span class="keyword">var</span> movies: [<span class="type">MovieResponse</span>] = []
+    
+    <span class="keyword">try await</span> <span class="call">withThrowingTaskGroup</span>(of: <span class="type">MovieResponse</span>.<span class="keyword">self</span>, body: { taskGroup <span class="keyword">in
+      for</span> movieId <span class="keyword">in</span> movies {
+            taskGroup.<span class="call">addTask</span> { <span class="keyword">try await self</span>.<span class="call">fetchMovie</span>(movieId: movieId) }
+        }
+        <span class="keyword">while let</span> movie = <span class="keyword">try await</span> taskGroup.<span class="call">next</span>() {
+            movies.<span class="call">append</span>(movie)
+        }
+    })
+
+    movies .... <span class="comment">// all movies fetched</span>
+}
+</code></pre><p>Şimdi adım adım inceleyelim, başlangıç olarak elimizde boş array var, ardından bir task group içinde bazı işlemler yaptık adından da anlaşılacağı üzere içinde birden fazla aynı iş yapmamızı ve hepsi bitince geriye dönmesini sağlıyor. For ile tüm isteklerimizi addTask diyerek ekledik, ardından while içinde task'ın sonucunun gelmesini bekledik. Tüm istekler sonuçlanınca array'imiz dolmuş oldu.</p><blockquote><p>Burada önemli bir noktayı belirtmek istiyorum bu withThrowingTaskGroup isteklerinizin attığımız sırayla gelmesini garanti etmez, bunun için sizin sonradan sıralama yapmanız gerekmektedir.</p></blockquote><p>Bu blog yazısında nasıl aynı anda birden fazla istek atıp sonuçlarını await ile alabilirizi anlattım, okuduğunuz için teşekkür ederim, bu konuyu araştırırken okuduğum yazıları aşağıda bulabilirsiniz.</p><p>https://www.avanderlee.com/swift/async-await/ https://tanaschita.com/20210630-how-to-call-async-await-functions-concurrently/ https://www.avanderlee.com/swift/async-let-asynchronous-functions-in-parallel/</p>]]></content:encoded></item><item><guid isPermaLink="true">https://yusufozgul.com/blogs/NewRelic-Dashboard</guid><title>New Relic Dashboard &amp; Integrations</title><description>We can quickly monitor the Trendyol mobile app in the event of an error with New Relic. On New Relic Dashboard, we can monitor the error rates and network response time. So how are we doing these.</description><link>https://yusufozgul.com/blogs/NewRelic-Dashboard</link><pubDate>Sun, 11 Jul 2021 12:00:00 +0000</pubDate><content:encoded><![CDATA[<p>We can quickly monitor the Trendyol mobile app in the event of an error with New Relic. On New Relic Dashboard, we can monitor the error rates and network response time. So how are we doing these. Full story posted on <a href="https://medium.com/trendyol-tech/new-relic-dashboard-integrations-258db76e34f6">https://medium.com/trendyol-tech/new-relic-dashboard-integrations-258db76e34f6</a></p>]]></content:encoded></item><item><guid isPermaLink="true">https://yusufozgul.com/blogs/Docker_Swift_Package-cache_EN</guid><title>Docker Swift Package cache</title><description>How can we cache swift packages while building on docker?</description><link>https://yusufozgul.com/blogs/Docker_Swift_Package-cache_EN</link><pubDate>Sun, 16 May 2021 10:08:00 +0000</pubDate><content:encoded><![CDATA[<p>I deployed a small Vapor project I made using Docker. Every build re-downloads all dependencies, but dependencies do not change. It was time and network wasting.</p><h3>So what can we do to solve this?</h3><p>Actually, it is quite easy, Docker makes the decision according to the changes of the files at every step. So if we never changed our project, it would take the libraries using the cache not re-download, but our files are changing. So what if we just copy the unchanged ones first and then copy the rest?</p><pre><code># <span class="type">Copy</span> entire repo into container
+<span class="type">COPY</span> . .
+
+# <span class="type">Compile
+RUN</span> swift build -c release -<span class="type">Xswiftc</span> -g
+</code></pre><p>We copied all the files into the container and called the swift build command. Since it will build completely from begin, it will first download libraries and then build.</p><pre><code># <span class="type">Copy</span> swift package file
+<span class="type">COPY Package</span>.<span class="property">swift</span> .
+
+# <span class="type">Download</span> swift packages
+<span class="type">RUN</span> swift package resolve
+</code></pre><p>Before copying all files, only copy Package.swift file and call swift package resolve command so that only the libraries download. Then, during build, these libraries are not downloaded again and continue to be used.</p><p>So what happens during the next build?</p><p>We just copied Package.swift and to download libraries. Same file as the previous build has not changed because. In this case, the docker will go read this from the cache and save time and network.</p><p>In this short article, I explained the optimization for swift package in Docker, thank you for reading.</p>]]></content:encoded></item><item><guid isPermaLink="true">https://yusufozgul.com/blogs/Docker_Swift_Package-cache_TR</guid><title>Docker ile Swift Kütüphaneleri Cache'ten okuma</title><description>Docker üzerinde swift projelerimizi build alırken kütüphaneleri nasıl cache'te saklayabiliriz?</description><link>https://yusufozgul.com/blogs/Docker_Swift_Package-cache_TR</link><pubDate>Sun, 16 May 2021 10:08:00 +0000</pubDate><content:encoded><![CDATA[<p>Yaptığım küçük bir Vapor projesini docker kullanarak ayağa kaldırdım, ancak değişikliklerden sonra her build sırasında hiç değişmeyen kütüphaneler sürekli yeniden indiriliyordu ve hem network hem de zaman kaybına sebep oluyordu.</p><h3>Peki bunu çözmek için ne yapabiliriz?</h3><p>Aslında oldukça kolay, Docker her stepte dosyaların değişime göre karar işlem yapıyor. Yani bizim projemizi hiç değiştirmesek kütüphaneleri cache'ten alacaktı ama dosyalarımız değişiyor. O halde bizde sadece değişmeyenleri önce kopyalasak ardından geri kalanı kopyalasak nasıl olur?</p><pre><code># <span class="type">Copy</span> entire repo into container
+<span class="type">COPY</span> . .
+
+# <span class="type">Compile
+RUN</span> swift build -c release -<span class="type">Xswiftc</span> -g
+</code></pre><p>Copy ile tüm dosyaları container içine kopyaladık ve swift build komutunu çağırdık. Tamamen en baştan build alacağı için önce kütüphaneleri indirip ardından build alacak.</p><pre><code># <span class="type">Copy</span> swift package file
+<span class="type">COPY Package</span>.<span class="property">swift</span> .
+
+# <span class="type">Download</span> swift packages
+<span class="type">RUN</span> swift package resolve
+</code></pre><p>Tüm dosyalarımı kopyalamadan önce sadece Package.swift dosyamızı kopyalarsak ve swift package resolve komutunu çağırırsak sadece kütüphaneler indirilir. Ardından build sırasında bu kütüphaneler tekrar indirilmez ve kullanılmaya devam edilir.</p><p>Peki bir sonraki build sırasında ne olur?</p><p>Sadece Package.swift dosyasını kopyaladık ve kütüphaneleri indirmesini söyledik. Buraya kadar olan kısımlar önceki build ile aynı dosyamız değişmedi çünkü. Bu durumda docker gidip cache'ten bunları okuyup geçecek ve böylece network ve zamandan kazanmış olacağız.</p><p>Bu kısa yazıda Docker'da swift package için optimizasyonu anlattım, okuduğunuz için teşekkür ederim.</p>]]></content:encoded></item><item><guid isPermaLink="true">https://yusufozgul.com/blogs/Dependency-Injection-1</guid><title>Dependency Injection - 1</title><description>Temiz kodlar, daha iyi test edilebilirlik ve daha iyi kod: Dependency injection</description><link>https://yusufozgul.com/blogs/Dependency-Injection-1</link><pubDate>Sun, 4 Apr 2021 10:08:00 +0000</pubDate><content:encoded><![CDATA[<h1>Dependency Injection - 1</h1><p>Dependency injection'ın tanımı wikipedia'ya göre şöyle:</p><blockquote><p>In software engineering, dependency injection is a technique in which an object receives other objects that it depends on. These other objects are called dependencies. In the typical "using" relationship the receiving object is called a client and the passed object is called a service.</p></blockquote><p>Yani sizin kodunuzun içerisinde bağımlı olduğunuz bir şeyin kodunuzun içerisinde doğrudan kullanmak yerine bağımlılığınızı kodun bir değişkenine, kodunuzun başlangıç fonksiyonuna (init, constructor) veya parametre olabilir bu şekilde aktararak kullanmak olacak. Bu sayede hem gerektiğinde bağımlılıklarımızı kolayca değiştirebileceğiz hem de test yazarken daha güvenilir ve kolay testler yazmamızı sağlayacak. Bu yazıda ise init fonksiyonunda inject etmenin nasıl olduğuna bakacağız.</p><h3>Ama Neden?</h3><p>Bir class'ın içerisinde başka bir class'ı doğrudan kullanmamızın ne zararı olabilir ki? Sonuç olarak işlemi her iki class doğru yazıldıysa yapacaktır.</p><p>Burada problemimiz şu, bir kodu test etmek istediğinizde kodun içerisindeki bağımlılıklar sizin test etmenizi engelleyebilir ya da testin her koşulda doğru sonuçlar vermesini engelleyebilir. Bir örnek ile başlayalım. Elimizde bir kod olsun ve bu kodun içerisinde Dispatch Queue ile bir işlem yapalım. Bu kodun testini yazdığımızda bu Dispatch Queue bize problem çıkartacak. Çünkü test yapılırken bu çalışmaya devam ediyor. Bizim isteğimiz ise işlemler bittikten sonra doğru sonuçlar verip vermediğini kontrol etmek. Bunun çözümü nispeten kolay. XCTest'in içerisinde bu durumlar için <code>Expectations</code> ile testin doğru çalışmasını ayarlayabiliriz.</p><p>Bir başka örnek, örneğin elimizde cihazla ilgili bilgiler veren bir class olsun. Kodumuzun içerisinde de cihaza göre işlem yapacak olalım. Doğrudan bu cihaz bilgilerini veren sınıfı kullanırsak bu durumda testimizi hangi cihazla yapıyorsak ona göre kod yazmış olalım. Peki farklı cihazda ne olacak? Çünkü bu unit test her koşulda doğru şekilde çalışmalı yoksa yazdığımız testin bir anlamı kalmıyor.</p><h3>Peki Nasıl?</h3><p>Kısa bir kod örneği ile açıklayayım:</p><pre><code><span class="keyword">import</span> UIKit
+
+<span class="keyword">class</span> Device {
+    <span class="keyword">var</span> screenSize: <span class="type">Size</span> {
+        <span class="type">UIScreen</span>.<span class="property">main</span>.<span class="property">bounds</span>.<span class="property">size</span>
+    }
+}
+
+<span class="comment">/// LOGIC</span>
+
+<span class="keyword">class</span> XYZPresenter {
+    <span class="keyword">func</span> prepareView() {
+        view.<span class="call">prepareView</span>(size: <span class="type">Device</span>.<span class="property">screenSize</span>)
+    }
+}
+
+<span class="comment">/// TEST</span>
+
+<span class="keyword">import</span> XCTest
+
+<span class="keyword">class</span> XYZPresenterTest {
+    <span class="keyword">var</span> presenter: <span class="type">XYZPresenter</span> = .<span class="keyword">init</span>()
+    
+    <span class="keyword">func</span> test_prepareView_InvokesView() {
+        <span class="call">XCTAssertFalse</span>(view.<span class="property">isPrepareViewInvokes</span>)
+        
+        presenter.<span class="call">prepareView</span>()
+        
+        <span class="call">XCTAssertTrue</span>(view.<span class="property">isPrepareViewInvokes</span>)
+        <span class="call">XCTAssertEqual</span>(view.<span class="property">prepareViewParameter</span>.<span class="property">size</span>, <span class="type">CGSize</span>(width: <span class="number">100</span>, height: <span class="number">100</span>))
+    }
+}
+</code></pre><p>Bir Device class'ımız var ve bunu doğrudan kullanmışız, test ederkende doğrudan elle değer verip test etmişiz peki farklı cihazlarda bu test çalışır mı?</p><p>Test ederkende bir if yazıp kontrol edebiliriz diyebilirsiniz ancak test'in içinde işlem yaparsanız o zaman testin testini yazmak gerekecek doğruluğundan emin olmak için.</p><h3>Çözüm:</h3><pre><code><span class="keyword">import</span> UIKit
+
+<span class="keyword">class</span> Device {
+    <span class="keyword">var</span> screenSize: <span class="type">Size</span> {
+        <span class="type">UIScreen</span>.<span class="property">main</span>.<span class="property">bounds</span>.<span class="property">size</span>
+    }
+}
+
+<span class="comment">/// LOGIC</span>
+
+<span class="keyword">class</span> XYZPresenter {
+    <span class="keyword">var</span> screenSize: <span class="type">Size</span>
+    
+    <span class="keyword">init</span>(screenSize: <span class="type">Size</span> = <span class="type">Device</span>.<span class="property">screenSize</span>) {
+        <span class="keyword">self</span>.<span class="property">screenSize</span> = screenSize
+    }
+    
+    <span class="keyword">func</span> prepareView() {
+       view.<span class="call">prepareView</span>(size: screenSize)
+    }
+}
+
+<span class="comment">/// TEST</span>
+
+<span class="keyword">import</span> XCTest
+
+<span class="keyword">class</span> XYZPresenterTest {
+    <span class="keyword">var</span> presenter: <span class="type">XYZPresenter</span> = .<span class="keyword">init</span>(screenSize: <span class="type">Size</span>(<span class="number">100</span>, <span class="number">100</span>))
+    
+    <span class="keyword">func</span> test_prepareView_InvokesView() {
+        <span class="call">XCTAssertFalse</span>(view.<span class="property">isPrepareViewInvokes</span>)
+        
+        presenter.<span class="call">prepareView</span>()
+        
+        <span class="call">XCTAssertTrue</span>(view.<span class="property">isPrepareViewInvokes</span>)
+        <span class="call">XCTAssertEqual</span>(view.<span class="property">prepareViewParameter</span>.<span class="property">size</span>, <span class="type">CGSize</span>(width: <span class="number">100</span>, height: <span class="number">100</span>))
+    }
+}
+</code></pre><p>Çözüm olarak <code>XYZPresenter</code>'ın init yani başlangıç fonksiyonunda bir parametre aldık, bu parametre bizim ihtiyacımız olan screenSize bilgisi. Böylece testimizi yaparken istediğimiz değeri verdik ve bizim verdiğimiz değere göre işlem yapılıp yapılmadığını anlamış olduk.</p><p>Buradaki işlem sadece bir örnek, çok çeşitli şekilde uygulayabilirsiniz. Özellikle Viper gibi mimariler kullanırken orada oldukça fazla protocol yazmanız ve bütün injection'larınızı protokoller üzerinden yapmalısınız. Bu konuyla alakalı bir video'yu aşağıya bırakıyorum.</p><p><a href="https://www.youtube.com/watch?v=jsrkIPfGStc">YouTube: Mimari 6: VIPER 🐍</a></p>]]></content:encoded></item><item><guid isPermaLink="true">https://yusufozgul.com/blogs/Publish-Metadata</guid><title>Publish Metadata</title><description>Publish'e metadata kullanarak yeni özellikler ekleyelim.</description><link>https://yusufozgul.com/blogs/Publish-Metadata</link><pubDate>Sun, 21 Mar 2021 10:08:00 +0000</pubDate><content:encoded><![CDATA[<p>Bir önceki yazımda Publish ile nasıl swift ile static web siteleri oluşturabilirizden bahsetmiştim, okumadıysanız: <a href="https://yusufozgul.com/blogs/PublishNedirNasilKullanilir/">Publish Nedir Nasil Kullanilir</a>. Publish'e draft ve zamanlanmış yazılar özelliğini nasıl getirebiliriz? Benim kullandığım eklentilerin nasıl kullanılacağını yazdığım samples adında bir yazı var, haliyle bu yazının yayınlanmasını istemiyorum. Bu sorunu çözmek için Publish'e iki adet pr açılmış ancak her ikiside kabul edilmemiş. Sebebi ise bunun zaten kolayca yapılabiliyor olması. Hadi nasıl yapılır bakalım.</p><p>Bir yazı oluştururken en başına aşağıdaki gibi bir alan ekliyoruz. Bu alan başlık, açıklama, tarih ve tag'lerden oluşuyor.</p><pre><code>---
+title: <span class="type">Swift</span> ile <span class="type">Web Site Oluşturmak</span>
+date: <span class="number">2021</span>-<span class="number">03</span>-<span class="number">20 10</span>:<span class="number">08</span>
+tags: <span class="type">Swift</span>, <span class="type">Publish</span>
+description: <span class="type">Swift</span>'i kullanarak nasıl statik web sayfaları oluşturabiliriz, nasıl hiç js kullanmadan bu yazıyı okuduğunuz site gibi siteler oluşturabiliriz?
+---
+</code></pre><p>Bu girdiler aslında birer metadata, peki biz burayı zenginleştiremez miyiz? Elbette yapabiliriz.</p><h3>Draft Özelliği:</h3><p>Sık yazı yazıyorsanız bazen bir yazı devam ederken bir yazı yazıyor olabilirsiniz ya da benim gibi eklentilerin nasıl kullanılacağını belirten örnek bir yazınız olabilir, her iki durumda da bu yazıların deploy edilmemesi gerekir.</p><ol><li>Yeni bir metadata ekleyelim:</li></ol><p>Yazının metadatalar kısmına yeni bir metadata ekleyelim.</p><pre><code>isDraft: <span class="keyword">true</span>
+</code></pre><ol start="2"><li>Metadatayı tanımlayalım:</li></ol><p>WebSite struct'ının içerisinde metadata için bir struct daha bulunacak. Buraya yeni metadatayı ekleyelim.</p><pre><code><span class="keyword">struct</span> ItemMetadata: <span class="type">WebsiteItemMetadata</span> {
+			<span class="keyword">let</span> isDraft: <span class="type">Bool</span>?
+}
+</code></pre><p>Nullable yaptım çünkü sadece draft olan yazıları belirmek yeterli olsun diye.</p><ol start="3"><li>Metadata kontrolü yapalım:</li></ol><p>Publish derlenirken eklentileri verdiğimiz, adımları belirlediğimiz kısma yeni bir alan ekleyeceğiz.</p><pre><code><span class="keyword">try</span> <span class="type">YusufozgulCom</span>().<span class="call">publish</span>(withTheme: .<span class="dotAccess">yusufozgulcom</span>,
+                            rssFeedSections: [.<span class="dotAccess">blogs</span>, .<span class="dotAccess">projects</span>],
+                            additionalSteps: [...
+                                                .<span class="call">removeAllItems</span>(in: .<span class="dotAccess">blogs</span>, matching: .<span class="keyword">init</span>(matcher: { item <span class="keyword">in</span>
+                                                    item.<span class="property">metadata</span>.<span class="property">isDraft</span> ?? <span class="keyword">false</span>
+                                                }))
+                            ],
+                            plugins: [...])
+</code></pre><p>RemoveAllItems ile geriye bool dönerek yazının silinmesini ya da silinmemesini belirtiyoruz. Böylece yazı draft ise deploy ederken yazıyı göndermemiş oluyoruz.</p><h3>Zamanlanmış Yazılar:</h3><p>Bu özellik aslında yukarıdaki adımlarla birebir aynı şekilde. Yazılarımızda zaten date metadatasını kullanıyoruz. Kendi Metadata struct'ımıza da date ekleyip removeAllItems kısmında bu date'i formatlayıp bulunduğumuz günden ileride ise yazının yayınlanmasını engelleyebiliriz. Başka bir senaryoda belirli süreden sonra yazıları arşivleyebiliriz ya da yazıları arşivler kısmında göstermek gibi işlemler yapabiliriz.</p><p>Bu yazıda ihtiyacım olan bir özelliği nasıl getirdiğimi paylaşmak istedim. Yukarıda bahsettiğim iki pr'ın linklerini aşağıya ekliyorum, dilerseniz oradaki konuşmaları okuyabilirsiniz. Teşekkür ederim.</p><hr><hr><p><a href="https://github.com/JohnSundell/Publish/pull/89">Add draft support for Markdown Content by mimorocks · Pull Request #89 · JohnSundell/Publish</a></p><p><a href="https://github.com/JohnSundell/Publish/pull/94">Allow user to have draft content excluded from Output by Kilo-Loco · Pull Request #94 · JohnSundell/Publish</a></p>]]></content:encoded></item><item><guid isPermaLink="true">https://yusufozgul.com/blogs/PublishNedirNasilKullanilir</guid><title>Swift ile Web Site Oluşturmak</title><description>Swift'i kullanarak nasıl statik web sayfaları oluşturabiliriz, nasıl hiç js kullanmadan bu yazıyı okuduğunuz site gibi siteler oluşturabiliriz?</description><link>https://yusufozgul.com/blogs/PublishNedirNasilKullanilir</link><pubDate>Sat, 20 Mar 2021 10:08:00 +0000</pubDate><content:encoded><![CDATA[<p>Swift'i kullanarak nasıl statik web sayfaları oluşturabiliriz, nasıl hiç js kullanmadan bu yazıyı okuduğunuz site gibi siteler oluşturabiliriz?</p><p>Daha önce yazdığım blog yazılarını kurduğum wordpress tabanlı blog'umda yazıyordum. Ancak hiç bilmediğim PHP ile yapmak istediğim bazı şeyleri yapamamak ve ara ara sorunlarla karışlaşıp bunları çözmekte bir hayli zorlanmam nedeniyle Wordpress'ten kurtulmak istedim. Web konusunda neredeyse hiç bilgim olmadığı için ya bana Gatsby gibi static html verecek ve herhangi bir ekstra kurulum yapmadan kolayca sunmamı sağlacak bir şeye ihtiyacım vardı. Elbette Medium'a da ara ara yazıyorum ancak projeler için bu domaini tutmak ve burada da yazmak istiyorum.</p><p>Bu arayışlarım sırasında daha önce gördüğüm ama çok incelemediğim için unuttuğum bir projeyi tekrar buldum, <a href="https://github.com/johnsundell/publish">Publish</a>. Tam istediğim gibi static html çıktısı veriyordu ve üstelik Swift ile yazılmıştı. Aslında Swift olması sizi yanıltmasın label, scroll view tarzı şekilde yazmıyorsunuz, gidip html'i swift ile yazıyorsunuz. Küçük bir örnek:</p><pre><code>.<span class="call">wrapper</span>(   
+    .<span class="call">a</span>(
+        .<span class="call">href</span>(<span class="string">"./blogs"</span>),
+        .<span class="call">h1</span>(<span class="string">"🚀 Latest articles"</span>)),
+    .<span class="call">itemList</span>(
+        for: <span class="type">Array</span>(context.<span class="call">allItems</span>(sortedBy: \.<span class="property">date</span>, order: .<span class="dotAccess">descending</span>).<span class="property">filter</span> { $0.<span class="property">sectionID</span>.<span class="property">rawValue</span> == <span class="type">SectionID</span>.<span class="property">blogs</span>.<span class="property">rawValue</span> }.<span class="call">prefix</span>(<span class="number">3</span>)),
+        on: context.<span class="property">site</span>),
+    .<span class="call">a</span>(
+        .<span class="call">class</span>(<span class="string">"browse-all"</span>),
+        .<span class="call">href</span>(<span class="string">"./blogs"</span>),
+        .<span class="call">text</span>(<span class="string">"Browse all</span> \(context.<span class="call">allItems</span>(sortedBy: \.<span class="property">date</span>, order: .<span class="dotAccess">descending</span>).<span class="call">filter</span> { $0.<span class="property">sectionID</span>.<span class="property">rawValue</span> == <span class="type">SectionID</span>.<span class="property">blogs</span>.<span class="property">rawValue</span> }.count) <span class="string">articles"</span>))
+),
+</code></pre><p>Görüldüğü gibi html tag'lerini kullanıyoruz ama swift'in kendi özelliklerini de kullanabiliyoruz. Örnek kodda ben ana sayfada 3 tane blog yazısı listelensin istemişim, bunun için tüm yazıların sadece ilk üçünü al demem yeterli oldu. İkinci kısımda da tüm yazıları göstermek için kaç yazı olduğunu saydırdım.</p><h3>Kurulum ve Kullanım</h3><p>Peki bu proje nasıl çalışıyor. Öncelikle aslında bu proje bir Swift Package şeklinde çalışıyor. Kendi içinde default dark/light tema desteği var. Sizin sadece web sitesi için başlık gibi bazı alanları girmeniz isteniyor. Tüm blog yazıları ise markdown formatında yazıyoruz. Çalıştırmak için publish'i kurmamız gerekiyor, brew yardımıyla kolayca kurabiliriz.</p><p><code>brew install publish</code></p><p>Ardından terminale gidip <code>publish run</code> komutunu verdiğimiz anda projemiz derleniyor ve local host üzerinde serve ediliyor. Belirtmek isterim bu debug aşaması, yayınlamak istediğimizde static html olarak çıktı verecek.</p><p>Ben yazılarımı taslak olarak tutmak ve kalıcı olarak saklamak için Notion uygulamasını kullanıyorum, en önemlisi ise Notion'ın yazıları markdown formatında export edebilmesi işime geliyor 🙂</p><h3>Eklenti Desteği</h3><p>Bu kadar anlattıklarımdan sonra bazı eksikler göze çarpıyor, embed edilen şeylere nasıl çözüm bulacağız? Publish için bir çok güzel extension yayınlanmış durumda. package.swift dosyasına gidip eklemek kadar zorlukta. Benim kullandığım bazı extension'lar şu şekilde:</p><ul><li><a href="https://github.com/alexito4/ReadingTimePublishPlugin">ReadingTimePublishPlugin</a>: Adından da anlaşıldığı gibi yazının okunma süresini hesaplıyor. Tabi dakikada okunabilecek kelime sayısını sizden istiyor ve böylece hemen her dilde kullanılabilir oluyor.</li><li><a href="https://github.com/insidegui/TwitterPublishPlugin">TwitterPublishPlugin</a> - <a href="https://github.com/thomaslupo/GistPublishPlugin">GistPublishPlugin</a> - <a href="https://github.com/tanabe1478/YoutubePublishPlugin.git">YoutubePublishPlugin</a> : İsimleri kendilerini tanıtıyor.</li><li><a href="https://github.com/johnsundell/splashpublishplugin">SplashPublishPlugin</a> : Bu eklenti yazı içinde paylaşılan kodları güzel bir biçimde renklendiriyor ve sayfayı taşırmadan ekliyor. Örnek hemencecik yukarıda.</li><li><a href="https://github.com/finestructure/ImageAttributesPublishPlugin">ImageAttributesPublishPlugin</a>: Static html olduğu için görselleri yerleştirmek problem oluyor, özellikle ekrana sığdırma gibi bu eklenti ile <code>![](IMAGE-URL width=100%)</code> gibi basit eklemelerle düzenleyebiliyoruz.</li></ul><p>Elbette bir çok eklenti var farklı işlerinizi görebilecek. Bunları <a href="https://github.com/topics/publish-plugin">https://github.com/topics/publish-plugin</a> etiketinden daha kolay bulabilirsiniz.</p><h3>Deploy</h3><p>Son olarak yayınlama kısmına geldik. Yayınlamak için default olarak kendi içinde bazı metotlar mevcut. Ben oluşturduğum private bir Github reposuna göndermesini sağladım. Bu repoya Github Action'ı kullanarak server'ımda otomatik olarak deploy etmeye yaran go kodu yazdım. Böylece yazıyı ekledikten sonra yapmam gereken terminalde <code>publish deploy</code> komutunu çalıştırmak.</p><h3>Son Olarak:</h3><p>Temel hatlarıyla Publish'i anlatmaya çalıştım. Github üzerinde çeşitli sitelerin kaynak kodları açık olarak mevcut. Tabiki de bu sitenin kaynak kodları da mevcut. Dilerseniz <a href="https://github.com/yusufozgul">Github</a> hesabımdan erişebilirsiniz.</p><p>Publish hakkında bir iki yazı daha yazma planım var, ihtiyacıma yönelik bir eklenti yazmaca ya da Publish hakkında işe yarayacak ip uçları olabilir. İhtiyacım olan bir eklenti var aslında her yazının soruna bir sonraki ve bir önceki yazıyı ya da etiketler ile benzer yazıları getirme.</p><p>Okuduğumuz için teşekkür ederim 🙂</p>]]></content:encoded></item><item><guid isPermaLink="true">https://yusufozgul.com/blogs/DiffableDataSource</guid><title>Diffable Data Source</title><description>Daha güvenilir, daha kullanışlı ve daha performanslı data source:  UICollectionViewDiffableDataSource</description><link>https://yusufozgul.com/blogs/DiffableDataSource</link><pubDate>Mon, 4 Jan 2021 14:08:00 +0000</pubDate><content:encoded><![CDATA[<p>Bir önceki yazımda Collection View'da daha rahat daha esnek ve daha performanslı layout tasarlamayı anlatmıştım. Eğer okumadıysanız:</p><p><a href="https://yusufozgul.com/blogs/CompositionalLayout/">Compositional Layout)</a></p><p>Bu yazımda ise Collection View'un bir diğer yönü olan data kısmındaki yeni Diffable Data Source'u anlatacağım.</p><h3>Bu zamana kadar nasıldı?</h3><p>Collection View ya da Table View'u oluştururken ona data source veriyorduk, bu temelde bir protokol'ü implemente eden herhangi bir class. Bu içerisinde kaç cell olacağını, hangi index / section için nasıl bir view ve verisi olacağını belirlemeyi sağlıyordu. Bu açıdan oldukça kolay ve her türlü view'u kullanmak oldukça kolay. Ancak bazı kusurları var, öncelikle bu yapıda datanın güvenliğini sağlamak bizim görevimiz. Ona dersek ki sana 10 tane data ekledim, ancak elimizdeki modeli güncelleme sırasında bir sorun oluşursa crash, bir sebepten ötürü reload sırasında data silinir ya da başka bir şey olursa olmayan bir index'e erişmeye çalışıp crash edebilir. Peki diffable data source?</p><h3>Diffable Data Source</h3><blockquote><p>Bunu collection view üzerinden anlatacağım ama table view için isim değişikliği haricinde aynı şekilde kullanılabilir.</p></blockquote><p>Bize lazım olan iki şey var, birincisi bir data source ikincisi aynı yapıda bir snapshot.</p><ol><li>Data Source:</li></ol><pre><code><span class="type">UICollectionViewDiffableDataSource</span>&lt;<span class="type">Section</span>, <span class="type">Data</span>&gt;
+
+<span class="comment">// Section: Hashable
+// Data: Hashable</span> 
+</code></pre><p>tipinde bir değişiklik, burada dikkat edilmesi gereken konu datanın aynı zamanda identifiable olduğunu sağlamak gerekiyor, buna göre data ayrıt edilip değişiklikler buna göre alınıyor.</p><pre><code>dataSource = .<span class="keyword">init</span>(collectionView: productListCollectionView, cellProvider: { (collectionView, indexPath, data) -&gt; <span class="type">UICollectionViewCell</span>? <span class="keyword">in
+    let</span> cell = collectionView.<span class="call">dequeueReusableCell</span>(withReuseIdentifier: <span class="string">"reuseIdentifier"</span>, for: indexPath) <span class="keyword">as</span>? <span class="type">BannerCell</span>
+    cell?.<span class="property">image</span>.<span class="call">loadImage</span>(from: data.<span class="property">imageURL</span>)
+    <span class="keyword">return</span> cell
+})
+</code></pre><p>Data source'u init ederken ona bizim collection view'umuzu verdik. Data source yaşadığı sürece bunu tutacak ve güncellemeleri yapacak. O ise bize collection view, indexPath, data bilgilerini veriyor. Burada asıl önemli detay bize datanın gelmesi, çünkü oraya gelen data kesin ve doğru olduğuna eminiz. Klasik şekilde cell'imizi oluşturduk ve datayı kullanarak içerisine gönderdik. Geriye kaldı tek bir şey.</p><ol start="2"><li>Update:</li></ol><p>Nispeten daha kolay bir olay yapmamız gereken bir snap shot oluşturmak ve data source'a göndermek.</p><pre><code><span class="type">NSDiffableDataSourceSnapshot</span>&lt;<span class="type">Section</span>, <span class="type">Data</span>&gt;
+
+<span class="comment">// Section: Hashable
+// Data: Hashable</span> 
+</code></pre><pre><code><span class="keyword">func</span> updateView(sections: [<span class="type">Section</span>]) {
+    <span class="keyword">var</span> snapShot = <span class="type">WidgetsSnapshot</span>() <span class="comment">// Snapshot oluştur</span>
+    snapShot.<span class="call">appendSections</span>(sections) <span class="comment">// Kullanılacak tüm section'ları ekle</span>
+
+    <span class="keyword">for</span> section <span class="keyword">in</span> sections {
+        snapShot.<span class="call">appendItems</span>(section.<span class="property">items</span>, toSection: section) <span class="comment">// her section'a verisini ekle</span>
+    }
+
+    dataSource.<span class="call">apply</span>(snapShot) <span class="comment">// apply ederek güncellenmesini sağla ( animasyon seçeneği gönderilebilir, varsayılan true )</span>
+}
+</code></pre><h2>Sonuç</h2><p>Basit anlatımıyla bu şekilde olan diffable data source bize güzel şeyler sunuyor, değişenleri otomatik alıp bunu animasyonlu yapması, arkaplanda çok hızlı yapması, çökmelere karşı güvenilir olması gibi gibi. Eklemek isteiğim son bir iki şey ise bunun minimum iOS 13'te kullanılabiliyor olması dezavantaj olabilir, bir diğeri ise section ve data tanımlamalarında enum kullanabilirsiniz, özellikle section için enum kullanmak işleri kolaylaştırır.</p><h3>Daha fazlası:</h3><p><a href="https://github.com/yusufozgul/DeezerSampleApp">yusufozgul/DeezerSampleApp</a></p>]]></content:encoded></item><item><guid isPermaLink="true">https://yusufozgul.com/blogs/CompositionalLayout</guid><title>Compositional Layout</title><description>Genellikle uygulamamızda bir sayfaya tüm içeriğimiz sığmaz, soldan sağa ya da yukarıdan aşağıya sürekli kaydırmamız gerekir. Peki her ikisini aynı anda yapmamız gerekiyorsa? Bu yazımda 2019 WWDC'de tanıtılan Compositional Layout nedir bakalım.</description><link>https://yusufozgul.com/blogs/CompositionalLayout</link><pubDate>Thu, 31 Dec 2020 14:08:00 +0000</pubDate><content:encoded><![CDATA[<p>Genellikle uygulamamızda bir sayfaya tüm içeriğimiz sığmaz, soldan sağa ya da yukarıdan aşağıya sürekli kaydırmamız gerekir. Peki her ikisini aynı anda yapmamız gerekiyorsa? Bu yazımda 2019 WWDC'de tanıtılan Compositional Layout nedir bakalım.</p><p>Collection View iOS 6'dan beri hayatımızda, table view'un aksine çok daha esnek yapılar sunmamıza olanak sağlayan collection view günümüzdeki bir çok uygulamanın çeşitli yerlerinde kullanılıyor. Ancak collection view'un da kendine göre sorunları ve problemleri var. Örneğin Bir collection view'un sadece tek akış yönü vardır. Bir sayfada hem dikey hem de yatay kayan alanları iç içe kullanmak istersek genellikle yapılan dikey kayan bir cell'in içine bir collection view daha ekleyip bunu yatay kaydırmak olur. Peki bu ne kadar kolay 😔</p><img src="https://yusufozgul.com/upload-images/Compositional-Layout/upload-688730711.png" width="100%"/><p>Böyle bir sayfayı tek collection view'da nasıl oluşturursunuz?</p><p>WWDC 2019'da tanıtılan ve biraz da SwiftUI'ın gölgesinde kalmış olan bir yenilik olan Compositional Layout adından da anlaşılabileceği üzere karma bir layout yapabiliyoruz.</p><p>Başlamadan önce kavramamız gereken şeyler var. Grup, Section, Item nedir gibi. Bunu anlamak için aşağıda bulunan görsel yardımcı olacak.</p><img src="https://yusufozgul.com/upload-images/Compositional-Layout/upload-959451082.png" width="100%"/><ul><li>En dıştaki kısım yani Layout aslında bizim Collection View'umuz. Son durumda bir collection view'un bir layoutu olacak.</li><li>Bir layout içerisinde section'lar bulundurur. Bu section'ların sayısı esnektir.</li><li>Her section içerisinde Grup ve grup içerisinde item'ları tutar. Bir grup içinde bir item olabilir. Bir sectionda da bir grup olabilir. Bu bizim tasarımımıza kalmış bir durum.</li></ul><p>Bu yapıyı aklımızda tutalım çünkü layout'u tasarlarken buna göre tasarlayacağız. Bir section içerisinde kodumuzda olması gereken bir kaç şey var.</p><ul><li>Her item bir size'a sahip olmak zorunda,</li><li>Her item bir grubun içerisinde olmalı,</li><li>Her section içerisinde grup barındırmalı.</li></ul><p>Bu şartları yerine getirmemiz gerekiyor.</p><p>Temel şekilde bir section şu yapıda:</p><pre><code><span class="keyword">private func</span> productCellLayout() -&gt; <span class="type">NSCollectionLayoutSection</span> {
+        <span class="keyword">let</span> itemSize = <span class="type">NSCollectionLayoutSize</span>(widthDimension: .<span class="call">fractionalWidth</span>(<span class="number">0.5</span>), heightDimension: .<span class="call">fractionalWidth</span>(<span class="number">1</span>)) 
+                <span class="comment">// Genişlik: Sahip olabileceği maksimum genişliğin yarısı, Yükseklik: sahip olacabileceği maksimum genişlik</span>
+
+        <span class="keyword">let</span> layoutItem = <span class="type">NSCollectionLayoutItem</span>(layoutSize: itemSize)
+        layoutItem.<span class="property">contentInsets</span> = <span class="type">NSDirectionalEdgeInsets</span>(top: <span class="number">5</span>, leading: <span class="number">5</span>, bottom: <span class="number">5</span>, trailing: <span class="number">5</span>)
+                <span class="comment">// Her kenarından inset verdik</span>
+        
+        <span class="keyword">let</span> layoutGroupSize = <span class="type">NSCollectionLayoutSize</span>(widthDimension: .<span class="call">fractionalWidth</span>(<span class="number">1</span>), heightDimension: .<span class="call">fractionalWidth</span>(<span class="number">1</span>))
+                <span class="comment">// Genişlik: Sahip olabileceği maksimum genişlikte, Yükseklik: Sahip olabileceği maksimum genişlikte</span>
+        <span class="keyword">let</span> layoutGroup = <span class="type">NSCollectionLayoutGroup</span>.<span class="call">horizontal</span>(layoutSize: layoutGroupSize, subitems: [layoutItem])
+        
+        <span class="keyword">let</span> layoutSection = <span class="type">NSCollectionLayoutSection</span>(group: layoutGroup)
+        <span class="keyword">return</span> layoutSection
+    }
+</code></pre><p>Bu kod parçası ile her satıra iki item gelecek şekilde aşağıya doğru akan bir collection view tasarlayabiliriz. Burada yükseklikleri belirlerken genişliği kullandım, bu kafa karıştırmasın düzgün bir dikdörtgen yapıda olmasını sağlayacak.</p><p>Peki yazımın başında belirttiğim collection view vertical hareket ederken, horizontal hareket eden section nasıl yapılır. Aslında yukarıdaki kod'a ekleyeceğimiz tek satır ile bunu yapabiliriz, sadece layout section'a vereceğimiz kod yetecek.</p><pre><code>layoutSection.<span class="property">orthogonalScrollingBehavior</span> = .<span class="dotAccess">continuousGroupLeadingBoundary</span>
+</code></pre><p>Bu durumda vertical hareket eden section artık horizontal hareket edecek.</p><p>2020 yılının son yazısı olan bu yazımda kısaca compositional layout'tan bahsettim, eğer daha fazlasını merak ediyorsanız aşağıdaki linkler işinize yarayabilir.</p><ul><li><a href="https://www.youtube.com/watch?v=SR7DtcT61tA">https://www.youtube.com/watch?v=SR7DtcT61tA</a></li><li><a href="https://developer.apple.com/videos/play/wwdc2019/215/">https://developer.apple.com/videos/play/wwdc2019/215/</a></li></ul>]]></content:encoded></item><item><guid isPermaLink="true">https://yusufozgul.com/blogs/SwiftARC</guid><title>Swift ARC</title><description>Swift programlama dilinde bellek yönetimi nasıl yapılıyor, bellek yönetimi neden önemlidir?</description><link>https://yusufozgul.com/blogs/SwiftARC</link><pubDate>Wed, 28 Oct 2020 14:06:00 +0000</pubDate><content:encoded><![CDATA[<p>Bir donanım üzerinde çalışan yazılımlar çalıştıkları sırada üzerinde bulunduğu donanım kaynaklarını kullanırlar. Yazılımların kullandığı kaynakların elbette bir sınırlaması olmalı çünkü genellikle bir donanım üzerinde birden fazla yazılım aynı anda çalışmakta ve sadece tek donanımı paylaşmaktadırlar. Burada en çok dikkat etmemiz gereken donanım bellek çünkü depolama birimleri eğer bir cache mekanizması kullanmıyorsak ya da sonradan depolama yapmıyorsak kurulduğu şekilden çok fazla artmazlar. Ancak kodumuz çalışırken bellekte yer kaplar ve çalıştığı süre boyunca farklı işlemler yaparak bellekte daha fazla yere ihtiyaç duyar aynı zamanda artık bir daha kullanmayacağımız alanlar oluşur. Kaynaklardan bir diğeri ise CPU. CPU zaten işletim sisteminin sahip olduğu CPU scheduling algorithms ( CPU zamanlama algoritmaları) sayesinde her işleme karşı belirli bir sınırın üzerinde çalışma izni vermemekte, çok ağır işlemlere zorlayacak olursak zaten kodumuz çalışmayacaktır. Sonuç olarak bizim bellek kullanımımızı sürekli kontrol altına almamız gerekiyor. &nbsp; &nbsp;</p><p>Eski programlama dillerinde bellek yönetimi otomatik olarak yapılmıyordu ve kodu yazan kişinin bellekte ayırdığı yer ile işi bittiği zaman temizlemesi gerekiyordu. Ancak modern diller ile bellek yönetimi otomatik hale getirildi ve artık ayrılan yere ihtiyaç duyulmayacaksa bellekten otomatik kaldırılıyor. Bunun için iki yöntem anlatacağım: Garbage Collector ( Çöp toplayıcısı ) ve Automatic Reference Counting ( Otomatik referans sayımı ) &nbsp; &nbsp; &nbsp;</p><h4>Garbage Collector:</h4><p>&nbsp; Bellekte uygulamanın kullandığı alanları üç parçaya bölerek bunları kategorilendirir ve uygulama threadlerinin uygun olduğu durumlarda tüm threadleri durdurarak temizleme işlemi gerçekleştirir. (1) Bu yazıda ARC konusuna odaklandığım için kaynaklardaki yararlandığım link üzerinden Garbage Collector hakkında ayrıntılara bakabilirsiniz. &nbsp; &nbsp;</p><h4>Automatic Reference Counting</h4><p>&nbsp; Swift uygulamamızın çalışma sırasında bellek yönetimi için ARC kullanır. İşlem olarak Garbage Collector ile aynı amacı taşımaktadır artık kullanılmayan ayrılmış bellek alanlarını temizlemek. Peki bunu neye göre yapıyor? &nbsp; Elimizde bir değişken olsun ve bu değişkene bir sınıftan nesne üretelim ve bunu bir fonksiyon içinde tanımlayalım. Fonksiyon içerisinde işlemlerimizi tamamladığımız zaman ARC artık bu nesneye ihtiyaç duyan kimse olmadığı için otomatik olarak temizleyecektir. &nbsp; Örneğin elimizde bir class olsun ve bu class'ı bir değişkende nesnesini oluşturalım. Ardından oluşturduğumuz bu nesneyi farklı bir değişkene daha verelim. Elimizde aynı nesneyi referans eden iki adet değişkenimiz var. İlk oluşturduğumuz değişkeni artık nil yapalım. Bu durumda nesnemizi değişkenimize verirken ARC ilk oluşturma sırasında 1 olarak saydı ardından ikinci değişkene aynı nesneyi verdiğimiz için ARC bu değeri 2 yaptı son olarak ilk oluşturduğumuzu nil yaptık ARC bu sefer sayıyı bir azaltarak 1 olarak güncellendi. Bu durumda nesnemizi hala kaybetmedik. Eğer elimizdeki tek değişkeni de nil olarak eşitlersek toplam referans sayısı 0 olacak ve ARC temizleme işlemini yerine getirecek. &nbsp; &nbsp; <img src="https://yusufozgul.com/upload-images/Swift-ARC/upload-008525674.png" width="100%"/> &nbsp; &nbsp; Peki her şey bu kadar harika şekilde ilerliyor ve ARC bizim için tüm işlerimizi zahmetsiz şekilde yerine getiriyor mu? Elbette hayır bizim dikkat etmemiz gereken şeyler de var. &nbsp; &nbsp;</p><h4>Weak Referanslar</h4><p>&nbsp; Bunu anlatmak için VIPER mimarisini örnek vereceğim. VIPER mimarisinde Presenter View'da güncelleme yapabilmesi için View referansını tutması gerekmektedir. Aynı zamanda View'da Presenter'a bazı şeyler söylemeli ki aralarında iletişim olsun. Bu durumda View'da Presenter'ın referansını tutacaktır. Sanki bir çıkmaza giriyoruz, biraz daha bakalım. Kullandığımız sayfada işimiz bitti kapattık. ARC kontrol edecek ve temizlemek isteyecektir ama View'u temizlemek için Presenter'ın temizlenmesi gerekiyor. Presenter'ı temizlemek istese bu sefer View'un temizlenmesi gerekiyor ki referans sayımız 0 olsun ve temizlenebilsin. Bir çıkmaza düştük ve feransımız uygulama açık kalıncaya kadar yaşayacak. Bunun çözümü için oluşturduğumuz değişkene weak ön ekini veriyoruz. Böylece ARC bunu saymayarak döngü oluşumunun önüne geçiliyor. VIPER mimarisinde Presenter içinde bulunan View referansına weak vererek View denit edildiği sırada Presenter kolayca deinit yapılabiliyor ve herhangi bir problem kalmıyor. &nbsp;</p><p>Bu yazıyı elbette unowned, strong ve bunların optional hallerini de dahil edip detaylandırmak mümkün ancak yazının daha da uzamaması ve aşağıya eklediğim resmi Swift dokümanında çok daha detaylı bilgiler olduğu için eğer ilginizi çekiyorsa aşağıdan ulaşabilirsiniz. &nbsp; &nbsp; Okuduğunuz için teşekkür ederim. Eğer bana sorularınız varsa link'ten bana ulaşabilirsiniz, teşekkür ederim 🙂</p><p>1 = <a href="https://medium.com/@gokhansengun/garbage-collector-nasıl-çalışır-3bdf2fb20282">https://medium.com/@gokhansengun/garbage-collector-nasıl-çalışır-3bdf2fb20282</a></p><p>2 = <a href="https://docs.swift.org/swift-book/LanguageGuide/AutomaticReferenceCounting.html">https://docs.swift.org/swift-book/LanguageGuide/AutomaticReferenceCounting.html</a></p>]]></content:encoded></item><item><guid isPermaLink="true">https://yusufozgul.com/blogs/observerPattern2</guid><title>Swift Observer Pattern - 2</title><description>Bazı durumlarda oluşan bir olay ile istediğimiz yerin tetiklenmesi ve bir işlem yapması gerekebilir. Bu durumda nasıl yapabileceğimize bakalım.</description><link>https://yusufozgul.com/blogs/observerPattern2</link><pubDate>Sat, 12 Sep 2020 12:00:00 +0000</pubDate><content:encoded><![CDATA[<p>Bir önceki yazımda SwiftUI ile Observer Pattern'in uygulamasını anlatmştım. Okumak isterseniz <a href="https://yusufozgul.com/blogs/observerPattern/">şu linki</a> kullanabilirsiniz. Bu yazımda ıse mevcut UIKit uygulamalarınızda Observer Pattern'i nasıl kullanabileceğinizi anlatacağım.</p><p>&nbsp; &nbsp;</p><h3>Başlayalım</h3><p>Burada izleyeceğimiz yaklaşım Notification Center ile değişiklerde uygulamamızı tetiklemek olacak. &nbsp;</p><pre><code><span class="keyword">class</span> DataManager {
+    <span class="keyword">var</span> value = <span class="number">0</span> {
+        <span class="keyword">didSet</span>{ <span class="call">updateState</span>() }
+    }
+    
+    <span class="keyword">func</span> change() {
+        value = <span class="type">Int</span>.<span class="call">random</span>(in: <span class="number">1</span>...<span class="number">100</span>)
+    }
+}
+
+<span class="keyword">extension</span> <span class="type">DataManager</span> {
+    <span class="keyword">internal func</span> updateState() {
+    
+    }
+}
+</code></pre><p>Basit şekilde bir sınıf ve bu sınıfa yazdığım extension bulunuyor. Value değişkenini değiştirmek için bir fonksiyon ve value her değiştiğinde çalışan bir fonksiyon daha var.</p><p>Şimdi bu sınıfımıza notification center eklemeliyiz.</p><pre><code><span class="keyword">class</span> DataManager {
+    <span class="keyword">var</span> value = <span class="number">0</span> {
+        <span class="keyword">didSet</span>{ <span class="call">updateState</span>() }
+    }
+    <span class="keyword">private let</span> notificationCenter: <span class="type">NotificationCenter</span>
+    
+    <span class="keyword">init</span>(notificationCenter: <span class="type">NotificationCenter</span> = .<span class="dotAccess">default</span>) {
+        <span class="keyword">self</span>.<span class="property">notificationCenter</span> = notificationCenter
+    }
+    
+    <span class="keyword">func</span> change() {
+        value = <span class="type">Int</span>.<span class="call">random</span>(in: <span class="number">1</span>...<span class="number">100</span>)
+    }
+}
+
+<span class="keyword">extension</span> <span class="type">Notification</span>.<span class="type">Name</span> {
+    <span class="keyword">static var</span> valueChanged: <span class="type">Notification</span>.<span class="type">Name</span> {
+        <span class="keyword">return</span> .<span class="keyword">init</span>(<span class="string">"DataManager.ValueChanged"</span>)
+    }
+}
+</code></pre><p>Notification Center init fonsiyonunda ayarlandı ve çalışmaya hazır bekliyor. &gt; Uygulamanızda Notification Name gibi String ifadeleri sürekli elle vermek yerine extension ile tek bir yerden alabilirsiniz. Daha ileriye götürmek isterseniz bunları sınıfınıza göre enum'da toplayabilirsiniz.</p><pre><code><span class="keyword">extension</span> <span class="type">DataManager</span> {
+    <span class="keyword">internal func</span> updateState() {
+        notificationCenter.<span class="call">post</span>(name: .<span class="dotAccess">valueChanged</span>, object: value)
+    }
+}
+</code></pre><p>Son olarak value değiştiğinde bir notification atacak şekilde güncelledik.</p><pre><code><span class="keyword">import</span> UIKit
+
+<span class="keyword">class</span> ViewController: <span class="type">UIViewController</span> {
+    <span class="keyword">@IBOutlet weak var</span> label: <span class="type">UILabel</span>!
+    <span class="keyword">let</span> dataManager = <span class="type">DataManager</span>()
+
+    <span class="keyword">override func</span> viewDidLoad() {
+        <span class="keyword">super</span>.<span class="call">viewDidLoad</span>()
+        label.<span class="property">text</span> = <span class="type">String</span>(dataManager.<span class="property">value</span>)
+        <span class="call">addObserver</span>()
+    }
+    
+    <span class="keyword">func</span> addObserver() {
+        <span class="type">NotificationCenter</span>.<span class="property">default</span>.<span class="call">addObserver</span>(forName: .<span class="dotAccess">valueChanged</span>, object: <span class="keyword">nil</span>, queue: .<span class="dotAccess">main</span>) { [<span class="keyword">weak self</span>] (notification) <span class="keyword">in
+            if let</span> value = notification.<span class="property">object</span> <span class="keyword">as</span>? <span class="type">Int</span> {
+                <span class="keyword">self</span>?.<span class="property">label</span>.<span class="property">text</span> = <span class="type">String</span>(value)
+            }
+        }
+    }
+    
+    <span class="keyword">@IBAction func</span> changeButton(<span class="keyword">_</span> sender: <span class="type">Any</span>) {
+        dataManager.<span class="call">change</span>()
+    }
+}
+</code></pre><p>StoryBoard kullanarak bir label ve bir buton tanımladım. Butona basıldğı zaman DataManager sınıfımızda bulunan change metodunu çalıştırıyor. addObserver fonksiyonu ise gönderdiğimiz notificationu dinlemek için. İçerisindeki object ile gönderdiğimiz veriyi alıp label'ı güncelledik. &nbsp; &nbsp; Peki bu <code>[weak self]</code> neyin nesi? Bunu ekleme sebebim memory leak denilen olayı önlemeye yönelik. Eğer <code>[weak self]</code> eklemeseydik observer self'i yani ViewController'ı sürekli elinde tutmak isteyecekti. ViewController deinit olması gerektiği zaman observer onu sıkı sıkıya tuttuğu için deinit olamayıp bellekte uyulama kapanana kadar kalacaktı. <code>[weak self]</code> ile bu bağlatıyı sıkı sıkıya yapmamıza gerek kalmadı. ViewController deinit olası gerektiği zaman onu tutan bir şey olmadığı için deinit olabildi ve ayrıca iOS 8 sonrasında ViewController deinit olduğu zaman observer'da dinlemeyi otomatik olarak bıraktı. Bu şekilde memory leak olmadı. &nbsp;</p><hr><p>&nbsp; &nbsp; Bu yazımda kısaca Observer Pattern konusunu UIKit ve Notification Center ile anlatmaya çalıştım. Bana sorularınız için <a href=""/contact"">iletişim</a> sayfasını kullanabilirsiniz, teşekkür ederim :)</p>]]></content:encoded></item><item><guid isPermaLink="true">https://yusufozgul.com/blogs/observerPattern</guid><title>Swift Observer Pattern</title><description>Bazı durumlarda oluşan bir olay ile istediğimiz yerin tetiklenmesi ve bir işlem yapması gerekebilir. Bu durumda nasıl yapabileceğimize bakalım.</description><link>https://yusufozgul.com/blogs/observerPattern</link><pubDate>Fri, 11 Sep 2020 12:00:00 +0000</pubDate><content:encoded><![CDATA[<p>Observer'ın Türkçe karşılığı gözlemci olarak geçiyor. Kodlarımızda gözlemci ise neyi gözleyebilir? Bu sorunun bir çok cevabı olabilir örneğin bir değişkenimizde değişiklik yaparız ve değişkenimiz değiştiği zaman bir başka işlem tetiklenebilir. Başka bir örnek olarak arayüzde bir metin olsun ve bu metin bir başka sınıftan gelen verilere göre sürekli güncellensin. Observer pattern'i kurarak değişkeni istediğimiz yerden değiştirsek bile sadece değiştirmemiz yetsin. Bu yazı ile basit şekilde bir SwiftUI projesi yaparak observer pattern'i inceleyelim.</p><h4>Başlarken</h4><p>&nbsp; Her ne kadar bu yazıda SwiftUI vee Combine ikilisini kullanacak olsam da mevcut UIKit uygulamalarında değişkene verilecek <strong>didSet</strong> özelliği ya da <strong>Notification Center</strong> kullanarak yapılabilir. &nbsp;</p><pre><code><span class="keyword">var</span> value = <span class="number">0</span> {
+    <span class="keyword">didSet</span> {
+        <span class="call">print</span>(<span class="string">"Value changed, new value:</span> \(value)<span class="string">"</span>)
+    }
+}
+
+value = <span class="number">10</span>
+</code></pre><p>Örnekte görüldüğü gibi value değişkeni değiştirildiği zaman <strong>didSet</strong> çalışıp içerisine yazdıklarımızı gerçekleştirecek. &nbsp; &nbsp; ------------</p><h3>Başlıyoruz</h3><p>&nbsp;</p><p>SwiftUI ile gelen özellikler içerinde bu konuda işimize yarayacak iki <strong>property wrapper</strong> var. Bu <strong>property wrapper</strong> konusunda blog yazısı yazmayı planlıyorum ancak şimdilik kısaca bahsedeyim. <strong>Property wrapper</strong> bir değişkene ekstra özellikler katmamıza olanak sağlıyor. Değişken üzerinde yapılacak değişikliklerle ekstra özellikler katabiliyoruz. Şimdi bize hangileri lazım:</p><ul><li>ObservableObject</li><li>@Published</li><li>@ObservedObject</li></ul><p>ObservableObject aslında bir <strong>Property wrapper</strong> değil. O bir protokol. Biz hangi sınıfımızdaki değişiklikleri observe etmek istiyorsak bu sınıfımıza ObservableObject protokolünü implemente ederek observe edilebilirlik özelliğini kazandırıyoruz. &nbsp; @Published ise observe edilecek olan değişkenimiz yani bu değişkendeki değişiklikler sonrası aksiyon alınacak. &nbsp; Geldik sonuncusuna @ObservedObject bu bir sınıftan instance oluşturduğumuz zaman bu sınıfı observe et, değişiklikleri izle demiş oluyoruz. &nbsp; &nbsp; İlk olarak basit bir data class oluşturalım.</p><pre><code><span class="keyword">import</span> SwiftUI
+
+<span class="keyword">class</span> DataClass: <span class="type">ObservableObject</span> {
+    <span class="keyword">@Published var</span> value = <span class="number">0</span>
+    <span class="keyword">var</span> value2 = <span class="number">0</span>
+    
+    <span class="keyword">func</span> changeValue() {
+        value = <span class="type">Int</span>.<span class="call">random</span>(in: <span class="number">0</span>...<span class="number">100</span>)
+    }
+    
+    <span class="keyword">func</span> changeValue2() {
+        value2 = <span class="type">Int</span>.<span class="call">random</span>(in: <span class="number">0</span>...<span class="number">100</span>)
+    }
+}
+</code></pre><p>Özellikle incelemek için iki adet değişken ekledim biri @Published diğeri değil. Olay oldukça basit fonksiyonlar çağırılır ve değişkenler random olarak bir sayı alırlar.</p><p>&nbsp; &nbsp; Şimdi ise arayüz kodlarımızı inceleyim:</p><pre><code><span class="keyword">import</span> SwiftUI
+
+<span class="keyword">struct</span> ContentView: <span class="type">View</span> {
+    <span class="keyword">@ObservedObject var</span> data = <span class="type">DataClass</span>()
+    
+    <span class="keyword">var</span> body: <span class="keyword">some</span> <span class="type">View</span> {
+        <span class="type">VStack</span> {
+            <span class="type">Spacer</span>()
+            <span class="type">Text</span>(<span class="type">String</span>(data.<span class="property">value</span>))
+            <span class="type">Text</span>(<span class="type">String</span>(data.<span class="property">value2</span>))
+            <span class="type">Spacer</span>()
+            <span class="type">Button</span>(<span class="string">"Change 1"</span>) {
+                data.<span class="call">changeValue</span>()
+            }
+            <span class="type">Button</span>(<span class="string">"Change 2"</span>) {
+                data.<span class="call">changeValue2</span>()
+            }
+            <span class="type">Spacer</span>()
+        }
+    }
+}
+</code></pre><p>Basit şekilde @ObservedObject ile DataClass'tan bir intance oluşturduk. Arayüzde bir VStack içerisinde İki adet text ve iki adet buton koyduk. Adım adım çalıştırıp neler oluyor bakalım: &nbsp; &nbsp; 1. Başlangıçta her ikisinden beklendiği gibi 0 olarak ekrana yazıldı. 2. <em>Change 1</em> butonuna bastığımız anda ilk metnimiz random bir değer ile değişti. 3. <em>Change 2</em> butonuna bastığımız anda ise ekranda herhangi bir değişiklik göremedik. 🤔 4. Tekrar <em>Change 1</em> butonuna bastığımız anda ise her iki metnimizin de değiştiğini gördük. 😯😯😯</p><p>&nbsp; &nbsp; Çıktıları inceleyelim. Beklendiği gibi <em>Change 1</em> butonu işlevini yerine getirdi. <em>value2</em> değişkeni @Published özelliğine sahip olmadığı için <em>Change 2</em> butonuna basmak pek bir anlam ifade etmedi. Ancak neden <em>Change 2</em> butonuna bastıktan sonra <em>Change 1</em> butonuna basınca ikinci metin değişti?</p><p>SwiftUI arayüz değişikliklerinde ilgili kısmı tekrar oluşturmak yerine arayüzün tamamını oluşturduğu için yeniden oluşturma sırasında <em>value2</em> değişkeninin değerini gidip tekrar okuması gerekti ve veriyi alırken güncellenmiş haliyle aldı bu sebeple güncellendi.</p><hr><p>&nbsp; &nbsp;</p><p>Bu yazımda kısaca Observer Pattern konusunu SwiftUI ile anlatmaya çalıştım. Bana sorularınız için <a href="https://yusufozgul.com/contact">iletişim</a> sayfasını kullanabilirsiniz, teşekkür ederim :)</p>]]></content:encoded></item><item><guid isPermaLink="true">https://yusufozgul.com/blogs/codable-Ayrintili-Hata-Ayiklama</guid><title>Swift Codable ayrıntılı hata ayıklama</title><description>İnternetten bir veriyi alıp ya da gönderirken JSON kullanarak aktarmak çok sık kullanılmaktadır. Swift 4 ile hayatımıza giren Codable aslında Decodable ve Encodable protokollerinin birleşiminden oluşmaktadır. Bu yazıda decode sırasında oluşan hataları ayrıntılı şekilde ele alacağız.</description><link>https://yusufozgul.com/blogs/codable-Ayrintili-Hata-Ayiklama</link><pubDate>Mon, 24 Aug 2020 16:14:00 +0000</pubDate><content:encoded><![CDATA[<p>İnternetten bir veriyi alıp ya da gönderirken JSON kullanarak aktarmak çok sık kullanılmaktadır. Swift 4 ile hayatımıza giren Codable aslında Decodable ve Encodable protokollerinin birleşiminden oluşmaktadır. Bu yazıda decode sırasında oluşan hataları ayrıntılı şekilde ele alacağız.</p><p>JSON decode ederken bir çok farklı hata alabiliriz örneğin gelen data geçerli bir json olmayabilir ya da optional olmayan bir field nil gelmiş olabilir. Bunlar için bazı kod satırlarıyla hatanın tam hangi sebepten geldiğini anlayabileceğiz.</p><pre><code><span class="keyword">import</span> UIKit
+
+<span class="keyword">var</span> jsonString: <span class="type">String</span> = <span class="string">"""
+{
+  "link": "https://yusufozgul.com",
+  "data": [
+    { "type": "comments", "content": "Lorem Ipsum, dizgi ve baskı endüstrisinde kullanılan mıgır metinlerdir." },
+    { "type": "comments", "content": "Lorem Ipsum, adı bilinmeyen bir matbaacının bir hurufat numune kitabı oluşturmak üzere bir yazı galerisini alarak karıştırdığı 1500'lerden beri endüstri standardı sahte metinler olarak kullanılmıştır." }
+  ]
+}
+"""</span>
+
+<span class="keyword">struct</span> CommentResponse: <span class="type">Codable</span> {
+    <span class="keyword">let</span> link: <span class="type">String</span>
+    <span class="keyword">let</span> data: [<span class="type">CommentResponseData</span>]
+
+    <span class="keyword">enum</span> CodingKeys: <span class="type">String</span>, <span class="type">CodingKey</span> {
+        <span class="keyword">case</span> link
+        <span class="keyword">case</span> data
+    }
+}
+
+<span class="keyword">struct</span> CommentResponseData: <span class="type">Codable</span> {
+    <span class="keyword">let</span> type: <span class="type">String</span>
+    <span class="keyword">let</span> content: <span class="type">String</span>
+
+    <span class="keyword">enum</span> CodingKeys: <span class="type">String</span>, <span class="type">CodingKey</span> {
+        <span class="keyword">case</span> type
+        <span class="keyword">case</span> content
+    }
+}
+
+<span class="keyword">let</span> jsonData = jsonString.<span class="call">data</span>(using: .<span class="dotAccess">utf8</span>)
+
+<span class="keyword">if let</span> data = jsonData {
+   
+    <span class="keyword">do</span> {
+        
+        <span class="comment">/// json decode etmek için sınıfımızı oluşturuyoruz.</span>
+        <span class="keyword">let</span> decoder = <span class="type">JSONDecoder</span>()
+        <span class="keyword">let</span> response = <span class="keyword">try</span> decoder.<span class="call">decode</span>(<span class="type">CommentResponse</span>.<span class="keyword">self</span>, from: data) <span class="comment">/// try ile deneyecek eğer başarısız olursa catch'e düşecek.</span>
+        <span class="call">print</span>(response.<span class="property">link</span>)
+    } <span class="keyword">catch</span> <span class="type">DecodingError</span>.<span class="call">dataCorrupted</span>(<span class="keyword">let</span> context) {
+        <span class="comment">/// Eğer gelen data geçerli bir json değilse veya data ile ilgili başka bir sorun oluşmuşsa buradan hatayı yakalayabiliriz.</span>
+        
+        <span class="call">print</span>(context.<span class="property">debugDescription</span>)
+    } <span class="keyword">catch</span> <span class="type">DecodingError</span>.<span class="call">keyNotFound</span>(<span class="keyword">let</span> key, <span class="keyword">let</span> context) {
+        
+        <span class="comment">/// Struct'ta bir field var ancak bu optional değil. Gelen json'da bu field bulunamazsa hatamızı buradan yakalayabiliriz ve hangi field olduğunu anlayabiliriz.</span>
+        <span class="call">print</span>(<span class="string">"</span>\(key.<span class="property">stringValue</span>) <span class="string">was not found,</span> \(context.<span class="property">debugDescription</span>)<span class="string">"</span>)
+    } <span class="keyword">catch</span> <span class="type">DecodingError</span>.<span class="call">typeMismatch</span>(<span class="keyword">let</span> type, <span class="keyword">let</span> context) {
+        
+        <span class="comment">/// Type safty önemli Struct'ı tanımlarken her field için tipini belirtiyoruz. Gelen json'daki field'ın tipi ile Struct'taki tip uyuşmadığı zaman hatayı buradan yakayabiliriz.</span>
+        <span class="call">print</span>(<span class="string">"</span>\(type) <span class="string">was expected,</span> \(context.<span class="property">debugDescription</span>)<span class="string">"</span>)
+    } <span class="keyword">catch</span> <span class="type">DecodingError</span>.<span class="call">valueNotFound</span>(<span class="keyword">let</span> type, <span class="keyword">let</span> context) {
+        
+        <span class="comment">/// Bir field ya optional'dır ya da değildir. Eğer Struct'ta optional tanımlamadınız ve json'da nil gelecek olursa hatayı buradan ele alabilirsiniz.</span>
+        <span class="call">print</span>(<span class="string">"no value was found for</span> \(type)<span class="string">,</span> \(context.<span class="property">debugDescription</span>)<span class="string">"</span>)
+    } <span class="keyword">catch</span> {
+        
+        <span class="comment">/// En sonunda hata hala ele alınamamışsa burdan alıyoruz.</span>
+        <span class="call">print</span>(<span class="string">"Other Error"</span>)
+    }
+}
+</code></pre><p>Umarım açıklayıcı olmuştur, bana sorularınız için iletişim sayfasını ya da yorumları kullanabilirsiniz, bir başka yazımda görüşmek üzere.</p><p>Proje Dosyası için: <a href="https://github.com/yusufozgul/Swift-Projects/tree/master/CodableDetailedDebugging.playground "GitHub hesabım"">GitHub hesabım</a></p>]]></content:encoded></item><item><guid isPermaLink="true">https://yusufozgul.com/blogs/NavigationBarOzellestirme</guid><title>NavigationBar’ı Nasıl Özelleştiririz?</title><description></description><link>https://yusufozgul.com/blogs/NavigationBarOzellestirme</link><pubDate>Fri, 21 Aug 2020 18:46:00 +0000</pubDate><content:encoded><![CDATA[<h1>NavigationBar’ı Nasıl Özelleştiririz?</h1><p>İOS uygulamalarında sayfa geçişlerinin çatısını oluşturan NavigationController bize bir navigasyon bar‘ı sunuyor. Buraya başlık, geri butonu, diğer işlemler için buton ekleyebiliyoruz. Aynı zamanda NavigationController‘ın bize sunduğu kaydırarak geri gelmek oldukça işlevsel. Öyleyse şimdi biraz bu bar’ı nasıl özelleştirebiliriz bakalım.</p><img src="https://yusufozgul.com/upload-images/NavigationBarOzellestirme/upload-391177605.png" width="100%"/><p>kaynak: developer.apple.com</p><p>Geri butonu ile başlayalım. Geri butonu bir ikon ve text‘ten oluştur. Eğer bir önceki sayfanın başlığı varsa text olarak onu alır. Eğer yoksa sistem tarafından lokalize edilen Geri ( Back ) adını alır. Geri butonunu kendimize göre şu şekilde özelleştirelim:</p><p>Farklı bir ikon Herhangi bir text bulunmayan Önce bir Navigation Bar temel olarak hangi kısımlardan oluşuyor göz atalım:</p><img src="https://yusufozgul.com/upload-images/NavigationBarOzellestirme/upload-493393184.png" width="100%"/><p>Görüntüden de anlaşılacağı üzere bizim ilgilenmemiz gereken kısım left item.</p><p>ViewWillAppear fonksiyonunda küçük bir işlemle düzenleyelim.</p><img src="https://yusufozgul.com/upload-images/NavigationBarOzellestirme/upload-671530495.png" width="100%"/><p>Düzenlenmiş geri butonu Eklediğimiz kod ile geri butonumuzu düzenledik, action ile ne yapması gerektiğini ayarladıktan sonra test edebiliriz.</p><p>Geri butonunu istediğimiz şartlara göre düzenledik, ancak bir sorun var. iOS kullanıcılarının alıştığı kaydırarak geri gelme özelliği artık çalışmıyor.</p><p>Bunun çalışmama sebebi otomatik ayarlanan geri butonunu kaldırmış yerine custom bir buton koymuş olmamız, butonu kendimiz ayarladığımıza göre gesture‘ı aktif etmemiz de gerekir.</p><p>Bunun için eklememiz gereken kısımlar var. Ekledikten sonra kaydırarak geri gelebilir halde olacak.</p><img src="https://yusufozgul.com/upload-images/NavigationBarOzellestirme/upload-021908818.png" width="100%"/><p>NavigationController içinde bulunan interactivePopGestureRecognizer‘a erişip bunun delegesini ve aktifliğini ayarladık. Delegate’i üzerimize alır almaz Xcode bize kızdı haliyle, hemen fixleyelim ve sonuca göz atalım.</p><p>Sonuç tam istediğimiz gibi, varsayılan özellikleri bozmadan, özelleştirmeyle birlikte bar’ı düzenledik.</p><p>Bu konu hakkında yazmaya devam edeceğim ancak left ya da right item kısmına birden fazla buton eklemek isterseniz .leftBarButtonItems şeklinde erişip array olarak butonlarınızı ekleyebilirsiniz.</p><p>Bir yazımın daha sonuna geldik, dilerseniz başka yazılarıma göz atabilirsiniz, bana sorularınızı yorum ya da iletişim sayfası üzerinden sorabilirsiniz teşekkür ederim.</p><p>Kaynak ve Destekler: Ahmet Keskin: https://twitter.com/_Ahmettkeskin</p>]]></content:encoded></item><item><guid isPermaLink="true">https://yusufozgul.com/blogs/GoLangArraySlices</guid><title>Golang ile Array ve Slices</title><description>Go dilinde Array ve Slices nasıl kullanılır?</description><link>https://yusufozgul.com/blogs/GoLangArraySlices</link><pubDate>Sat, 25 Jan 2020 12:00:00 +0000</pubDate><content:encoded><![CDATA[<p>Kendime yeni bir şeyler katmak ve özellikle api, backend taraflarında bilgi sahibi olmak için Go dilini öğrenmeye başladım. Aynı zamanda öğrendiklerimi de buradan paylaşmanın fena olmayacağını düşündüm. Vaktim olduğunca öğreneceğim Go hakkında ara sıra bir şeyler karalayacağım ilk olarak bakalım nasılmış bu Array ve Slices’lar.</p><h3>Array</h3><p>Array yani dizi sanırım en aşina olunanıdır. Köşeli parantezler ” [] ” ile tanımlanan diziler verdiğimiz. sabit boyutta kullanılabilen yapılardır. Array kullanımı Go’da da oldukça basit şekilde.</p><pre><code>numbers := [<span class="number">6</span>]int{<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>}
+</code></pre><p>Görüldüğü gibi değişkenime sabit 6 adet int eleman alabilecek ve aynı zamanda başlangıçta ayarladığımız bir dizi.</p><p>Eğer başlangıç değeri vermeseydik hepsine default int değeri olan 0 değerini verecekti.</p><p>Sürekli uzunluğu sayıp parantez içine yazacak mıyız? Bunun için ” […] ” şeklinde kullanabiliriz ancak dikkat etmemiz gereken kısımlar var başlangıç değerinde kaç değer veriyorsak o kadar uzunluğa sahip dizi oluşturulacaktır.</p><pre><code>numbers := [...]int{<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>}
+</code></pre><p>Bunlar işimi görmez ben internetten Json veri çekeceğim array içinde kaç veri gelecek bilemem bana esnek bir yapı lazım diyorsanız şimdiki kısım bunun için.</p><h3>Slices</h3><p>Slices aslında veri tutan bir yapı değildir arkaplanda array kullanır ancak bize esnek bir kullanım sunar. Bir array bir slices kullanarak bakalım değişkenlerimizin tiplerine:</p><pre><code>package main
+<span class="keyword">import</span> (
+<span class="string">"fmt"
+"reflect"</span>
+)
+
+<span class="keyword">func</span> main() {
+numbers := <span class="call">make</span>([]int, <span class="number">4</span>) <span class="comment">// slices</span>
+numbersArray := [<span class="number">4</span>]int{} <span class="comment">// Array</span>
+
+fmt.<span class="type">Println</span>(reflect.<span class="type">TypeOf</span>(numbers))
+fmt.<span class="type">Println</span>(reflect.<span class="type">TypeOf</span>(numbersArray))
+}
+</code></pre><p>Bu kod çıktımız bize:</p><pre><code>[]int
+[<span class="number">4</span>]int
+</code></pre><p>şeklinde çıktı.</p><p>Buradaki yapı biraz farklı başlangıç için bir uzunluk değeri vermemiz lazım arrayde olduğu gibi. Tabi uzunluk değeri veriyorsak diziden ne farkı kaldı diyorsanız Slices ile belirlediğiniz uzunluğun üzerinde bir indise veri eklemeye çalıştığınız zaman sistem arkaplanda boyutunu 2 katına çıkarıyor. ?</p><p>Olay şu şekilde sizin başlangıçta belirlediğiniz uzunluk değeri 5 olsun. Ardından ilk 5 değeri verdiniz. Sonra ise 6. değeri eklemek istediğinizde arkaplanda sizin boyutunuz olan 5 iki katına çıkarılıp 10 yapılacak. yeni bir veri eklemek istediğinizde ise bu 10, iki ile çarpılıp 20 yapılacak. Hadi bakalım buna:</p><pre><code>package main
+<span class="keyword">import</span> (
+<span class="string">"fmt"</span>
+)
+
+<span class="keyword">func</span> main() {
+numbers := <span class="call">make</span>([]int, <span class="number">4</span>)
+
+fmt.<span class="type">Println</span>(numbers)
+fmt.<span class="type">Println</span>(<span class="call">cap</span>(numbers))
+}
+</code></pre><p>Bu kod çıktımız bize:</p><pre><code>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>]
+<span class="number">4</span>
+</code></pre><p>şeklinde çıktı.</p><p>Ne yaptığımıza hemen bakalım. 4 uzunluğa sahip bir slices oluşturduk. Bunu ekrana yazdırdık bize default değer olan 0 değerlerini yazdı. Hemen altına ise slices’ımızın kapasitesini yani alabileceği uzunluğu yazdırdık. Tamda verdiğimiz gibi 4 çıktı. Yeni bir eleman ekleyelim.</p><pre><code>package main
+<span class="keyword">import</span> (
+<span class="string">"fmt"</span>
+)
+
+<span class="keyword">func</span> main() {
+numbers := <span class="call">make</span>([]int, <span class="number">4</span>)
+
+numbers = <span class="call">append</span>(numbers, <span class="number">1</span>)
+
+fmt.<span class="type">Println</span>(numbers)
+fmt.<span class="type">Println</span>(<span class="call">cap</span>(numbers))
+}
+</code></pre><p>Bu kod çıktımız bize:</p><pre><code>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>]
+<span class="number">8</span>
+</code></pre><p>şeklinde çıktı.</p>]]></content:encoded></item><item><guid isPermaLink="true">https://yusufozgul.com/blogs/SwiftKontrolYapilari</guid><title>Swift Kontrol Yapıları</title><description>Merhaba, bu yazımda Swift’te kontrol yapıları nasıl kullanılır, farklı kontrol yapıları hakkında olacak. Kontrol yapıları kodlamamız içerisinde sıklıkla kullanmamız gereken kod parçacıkları oluyor. Gelin hep birlikte bakalım nasıl yapılıyor.</description><link>https://yusufozgul.com/blogs/SwiftKontrolYapilari</link><pubDate>Thu, 17 Oct 2019 12:00:00 +0000</pubDate><content:encoded><![CDATA[<p>Merhaba, bu yazım Swift’te kontrol yapıları nasıl kullanılır, farklı kontrol yapıları hakkında olacak. Kontrol yapıları kodlamamız içerisinde sıklıkla kullanmamız gereken kod parçacıkları oluyor. Gelin hep birlikte bakalım nasıl yapılıyor.</p><h3>If Blokları</h3><p>Kodlamaya ufak bir giriş yapmış olanların bile bileceği bu blok tahmin edersiniz ki yazdığımız kodun Boolean sonucuna göre işlem yapıyor ya da yapmıyor. Hemen bakalım:</p><pre><code><span class="keyword">if</span> <span class="number">10</span> == <span class="number">5</span> {  <span class="comment">// 10 değeri 5 değerine eşit mi? Sonuç: False işlem yapılmaz</span>
+}
+
+<span class="keyword">if</span> <span class="number">10</span> &gt; <span class="number">5</span> {  <span class="comment">// 10 değeri 5 değerinden büyük mü? Sonuç: True işlem yapılır.</span>
+}
+</code></pre><p>Basit bir şekilde if kullanımı yukardaki gibi. Temel mantık operatörlerini kullanarak kontrollerimizi yapıyoruz. Ek olarak ve ( &amp;&amp; ) ya da veya ( || ) gibi mantık operatörlerini de kullanabiliriz. Şimdi bir adım daha ileri gidelim ne dersiniz?</p><h3>If let Blokları</h3><p>If tanıdık geldi, let’te tanıdık geldi değil mi? Bir farklılık var ama hemen ne olduğuna bakalım. Bu işlemde bir değeri işleyip bir değişkene atmaya çalışıyoruz. Eğer yapabilirsek bize sonuç Boolean olarak True gelecek, aksi taktirde False gelecek. Hemen bakalım:</p><pre><code><span class="keyword">if let</span> myView = view.<span class="property">subviews</span>.<span class="property">first</span> <span class="keyword">as</span>? <span class="type">MyCustomView</span> {
+ }
+</code></pre><p>Buradaki işlemi hemen anlayalım. Diyoruz ki elimizde bir view var ve bu view’un alt viewlarından ilkini alıp eğer bu alt viewların ilkini MyCustomView şekilde alabildiysen myView değişkenine ata. Yapabilirse bu myView değişkenini bloğun içerisinde kullanabiliriz.</p><p>Bu işlemi çok sık kullanırız tableview prototip cell’lerimizi alırken if let yapısını kullanmamız gerekir. Asla yapmamamız gereken ise:</p><pre><code><span class="keyword">let</span> myView = view.<span class="property">subviews</span>.<span class="property">first</span> <span class="keyword">as</span>! <span class="type">MyCustomView</span>
+</code></pre><p>Bu işlem asla tavsiye edilmez çünkü eğer yapamazsa uygulamanız crash edecektir.</p><p>Peki if let kullanmamız gerekiyor ama if içerisine her şeyi yazmak istemiyorsak ne olacak? Çaremize Guard yapısı giriyor.</p><h3>Guard Blokları</h3><p>Aslında gif’in tam tersi bir işlem yazıyorsunuz. If’te eğer olursa parantez içini işle. Eğer olmazsa isteğe bağlı olarak else kısmını işle. Guard yapımızda ise şartımız False dönerse zorunlu else kısmına girer. Gerçekleşirse problem yok devam eder.</p><pre><code><span class="keyword">guard</span> <span class="number">10</span> == <span class="number">5</span> <span class="keyword">else</span> { <span class="keyword">return</span> }
+</code></pre><p>Görüldüğü gibi guard kullandığımız zaman olmadığı durumda ne yapacağını söylüyoruz ve her şeyi parantez içine yazmıyoruz. Elbette burada parantez içine istediğiniz işlemi yazabilirsiniz.</p><p>If let yapısını kullanabildiğiniz gibi guard let yapısını da kullanabilirsiniz. Aralarındaki tek var birinde olursa ne olacağı diğerinde olmazsa ne olacağını yazmanız şart.</p><h3>Bu bloklarla başka neler yapılabilir?</h3><ul><li>null check işlemi yani bir optional değişkenin nil olup olmadığı kontrol edilebilir. Bu uygulamamızın çökmemesi için şart.</li><li>if let ya da guard let yapısında birden fazla let kullanılabilir. Hepsi yapılırsa True döner.</li><li>if let yapısındaki değişken sadece parantez içinde kullanılabilirken guard let yapısında tanımladığınız değişken ilgili metot ya da classta her nerede tanımladıysanız kullanılabilir.</li><li>Xcode’un bize kızdığı bu optional bir değişken dediği durumlarda kolaylık olsun diye Force-unwrap yapıp geçmeyip bu yapıları kullanırız.</li></ul><p>Bir yazımın daha sonuna geldik, bana ulaşmak için iletişim sayfasını kullanabilirsin, soruların varsa da yorum olarak yazabilirsin. Keyifli kodlamalar 🙂</p>]]></content:encoded></item><item><guid isPermaLink="true">https://yusufozgul.com/blogs/SwiftKodEtiketleri</guid><title>Swift kod bloklarına etiket vermek</title><description>İç içe for döngüsü yazıp belirli senaryolarda en dıştaki for döngüsünü kırıp ya da atlamayı nasıl yapabiliriz?</description><link>https://yusufozgul.com/blogs/SwiftKodEtiketleri</link><pubDate>Sun, 29 Sep 2019 12:00:00 +0000</pubDate><content:encoded><![CDATA[<p>Başlık biraz karışık oldu farkındayım ancak detaylı anlatınca daha iyi anlaşılacaktır. Bu yazıda kod bloklarımıza etiket nasıl verebileceğimize bakacağız.</p><p>İç içe for döngüsü yazıp belirli senaryolarda en dıştaki for döngüsünü kırıp ya da atlamayı nasıl yapabiliriz? Elbette uzun uzadıya if blokları yazmak pek mantıklı olmayacaktır, bunun basit çözümü olmalı değil mi? Kod bloklarımıza etkilet vererek değişken adı verir gibi onları yönetebiliriz.</p><h3>Nasıl Yapılır?</h3><pre><code>forLabel: <span class="keyword">for</span> element <span class="keyword">in</span> array  {
+    <span class="comment">// İşlemler</span>
+}
+ifLabel: <span class="keyword">if</span> statement1 == statement2  {
+    <span class="comment">// İşlemler</span>
+}
+swichLabel: <span class="call">switch</span>(myEnum) {
+    <span class="comment">// İşlemler</span>
+}
+</code></pre><p>Yukardaki örnekler basit kullanımları, şimdi iç içe (nested) for döngümüze gelelim.</p><pre><code>outerFor: <span class="keyword">for</span> each <span class="keyword">in</span> array <span class="comment">// Döngümüze etiket verdik {</span>
+    <span class="keyword">for</span> eachSubItem <span class="keyword">in</span> subArray  {
+        <span class="keyword">switch</span> statement   {
+        <span class="keyword">case</span> one:
+            <span class="keyword">continue</span> outerFor <span class="comment">// İstediğimiz durum gerçekleşince dışardaki döngümüzü sonraki döngüye atladık, bu sayede aşağıdaki işlemler yapılmayacak.
+        // İşlemler</span>
+        }
+     }
+    <span class="comment">// İşlemler</span>
+}
+</code></pre><p>Yukardaki kod bloğunu istediğiniz şekilde kullanabilirsiniz, etiket vermek için blok başına <code> etiketi_ismi: </code> eklemeniz yeterli.</p><p>Bir yazının sonuna daha geldik, okuduğunuz için teşekkür ederim, diğer yazılarıma göz atabilir iletişim kısmından bana ulaşabilirsiniz ??</p><hr><p>Kaynaklar:</p><p>https://docs.swift.org/swift-book/ReferenceManual/Statements.html</p><p>https://medium.com/@rwgrier/swift-labeled-statements-3624ff30e0e7</p>]]></content:encoded></item><item><guid isPermaLink="true">https://yusufozgul.com/blogs/SwiftHapticFeedback</guid><title>Swift Haptic Feedback ile kullanıcıyla etkileşimli uygulamalar</title><description>Apple’ın iPhone 6S ile birlikte tanıttığı ardından daha da geliştirip yazılımcıların kullanımına sunduğu haptic feedback olarak adlandırılan anlaşılır haliyle telefonunuzun size titreşim yoluyla geri bildirim vermesidir.</description><link>https://yusufozgul.com/blogs/SwiftHapticFeedback</link><pubDate>Wed, 19 Jun 2019 12:00:00 +0000</pubDate><content:encoded><![CDATA[<p>Apple’ın iPhone 6S ile birlikte tanıttığı ardından daha da geliştirip yazılımcıların kullanımına sunduğu haptic feedback olarak adlandırılan anlaşılır haliyle telefonunuzun size titreşim yoluyla geri bildirim vermesidir. Eğer 3D Touch kullanıyorsanız bastığınız anda telefonun size açıldığını titreşim ile hissettirecektir, sadece bununla sınırlı değil elbette onayladığınız bir kutucuk, picker olarak adlandırılan alarm uygulamasında saat seçtiğinizde geri bildirim uygulaması gibi. Bakalım bunu nasıl yapabiliyoruz??</p><p>Öncelikle bunu kullanmayı abartıp her dokummaya bunu vermek hiç ama hiç doğru değil. Kullanıcıda negatif bir izlenim oluşacaktır. Sadece gerekli alanlarda ve kullanıcıyı bildirmeniz gereken yerlerde kullanmanızı tavsiye ederim.</p><h3>Hadi Başlayalım ?</h3><p>Bir proje oluşturalım ve istediğimiz event’in kod bloğuna gelelim. Event gerçekleşirken aşağıdaki kodlardan seçtiğiniz işlemi kullanın.</p><pre><code>     <span class="keyword">@IBAction func</span> error(<span class="keyword">_</span> sender: <span class="type">Any</span>)
+    {
+        <span class="keyword">let</span> generator = <span class="type">UINotificationFeedbackGenerator</span>()
+        generator.<span class="call">notificationOccurred</span>(.<span class="dotAccess">error</span>)
+    }
+    
+    <span class="keyword">@IBAction func</span> succes(<span class="keyword">_</span> sender: <span class="type">Any</span>)
+    {
+        <span class="keyword">let</span> generator = <span class="type">UINotificationFeedbackGenerator</span>()
+        generator.<span class="call">notificationOccurred</span>(.<span class="dotAccess">success</span>)
+    }
+    
+    <span class="keyword">@IBAction func</span> warning(<span class="keyword">_</span> sender: <span class="type">Any</span>)
+    {
+        <span class="keyword">let</span> generator = <span class="type">UINotificationFeedbackGenerator</span>()
+        generator.<span class="call">notificationOccurred</span>(.<span class="dotAccess">warning</span>)
+    }
+    
+    <span class="keyword">@IBAction func</span> light(<span class="keyword">_</span> sender: <span class="type">Any</span>)
+    {
+        <span class="keyword">let</span> generator = <span class="type">UIImpactFeedbackGenerator</span>(style: .<span class="dotAccess">light</span>)
+        generator.<span class="call">impactOccurred</span>()
+    }
+    
+    <span class="keyword">@IBAction func</span> medium(<span class="keyword">_</span> sender: <span class="type">Any</span>)
+    {
+        <span class="keyword">let</span> generator = <span class="type">UIImpactFeedbackGenerator</span>(style: .<span class="dotAccess">medium</span>)
+        generator.<span class="call">impactOccurred</span>()
+    }
+    
+    <span class="keyword">@IBAction func</span> heavy(<span class="keyword">_</span> sender: <span class="type">Any</span>)
+    {
+        <span class="keyword">let</span> generator = <span class="type">UIImpactFeedbackGenerator</span>(style: .<span class="dotAccess">heavy</span>)
+        generator.<span class="call">impactOccurred</span>()
+    }
+    
+    <span class="keyword">@IBAction func</span> selectionChange(<span class="keyword">_</span> sender: <span class="type">Any</span>)
+    {
+        <span class="keyword">let</span> generator = <span class="type">UISelectionFeedbackGenerator</span>()
+        generator.<span class="call">selectionChanged</span>()
+    }</pre></code><p>Bana ulaşmak için yorum yazabilir veya blogumdaki iletişim sayfasını kullanabilirsiz. İyi kodlamalar ?</p><hr><p>Kaynaklar:</p><p>https://developer.apple.com/documentation/uikit/uinotificationfeedbackgenerator https://www.hackingwithswift.com/example-code/uikit/how-to-generate-haptic-feedback-with-uifeedbackgenerator</p>]]></content:encoded></item><item><guid isPermaLink="true">https://yusufozgul.com/blogs/SigninWithApple</guid><title>Sign in with Apple Nasıl Kullanılır?</title><description>Sign in with Apple özelliği WWDC 2019’da tanıtıldığında diğer bir çok üçüncü parti giriş servislerinden çok daha iyi özellikleriyle geldi. Vermek istediğiniz bilgileri kontrol edebilmek araya bir email yönlendirmesi koymak gibi. Gizlilik konusunda atılan bu güzel adımda Apple’a güvenebildiğimiz kadar gizliliğimizi korumuş oluyoruz.</description><link>https://yusufozgul.com/blogs/SigninWithApple</link><pubDate>Wed, 5 Jun 2019 12:00:00 +0000</pubDate><content:encoded><![CDATA[<p>Sign in with Apple özelliği WWDC 2019’da tanıtıldığında diğer bir çok üçüncü parti giriş servislerinden çok daha iyi özellikleriyle geldi. Vermek istediğiniz bilgileri kontrol edebilmek araya bir email yönlendirmesi koymak gibi. Gizlilik konusunda atılan bu güzel adımda Apple’a güvenebildiğimiz kadar gizliliğimizi korumuş oluyoruz. Artık kullanmadığımız, hesabımızı kapattığımız hizmetlerden spam mailler almayacağız. Birde hangi uygulamalar bilgilerimizi satıyor görebileceğiz 🙂</p><p>Yıl sonuna kadar bu özellik uygulamada üçüncü parti giriş hizmeti kullananlar için zorunlu olacak, Apple bazen gerekli konularda iyi yaptırımlar uyguluyor. Hadi şimdi bu özelliği nasıl kolayca uygulamamıza ekleyebileceğimize bakalım.</p><p>Başlamadan eklemek istediğim şeyler var:</p><ul><li>Bu özellik iOS 13 ve daha üst sürüm gerektirir.</li><li>Uygulamanız UIKit kullansa bile kullanabilirsiniz.</li><li>Xcode 11 kullanmanız gerekmektedir.</li><li>Son olarak yayınlanmış son Apple Geliştirici Şartlarını kabul etmelisiniz.</li></ul><p>Bu arada karşılaştığım bir sorun bu özellik ücretsiz hesap ile geliştirme yapıyorsanız kullanılamıyor. developer.apple.com’da son Geliştirici Şartları görünmüyor. Developer hesabında ise herhangi bir sorun yok.</p><h3>Başlayalım</h3><p>Xcode 11 beta’yı açıp bir proje oluşturun. Bu yazıda uygulama UIKit ile geliştirilmiş olacak dilerseniz SwiftUI’da kullanabilirsiniz herhangi bir fark bulunmuyor.</p><p>Proje ayarlarımızı yapalım. <img src="https://yusufozgul.com/upload-images/SigninWithApple/upload-270232875.png" width="100%"/></p><img src="https://yusufozgul.com/upload-images/SigninWithApple/upload-299754126.png" width="100%"/><p>Proje ayarlarımızdan sonra kodumuza başlayabiliriz. Yapacağımız ilk iş AuthenticationServices’ı ViewController’ımıza import etmek</p><pre><code><span class="keyword">import</span> AuthenticationServices
+</code></pre><p>Şimdi AuthenticationServices’ten ASAuthorizationAppleIDButton’u kullanacağız, esasında bu bir buton ve UIControl kütüphanesine bağlı. Bu da demek oluyor ki bunu bir buton gibi düşüneceğiz ve target verip farklı bir fonksiyonda bunun işlemlerini yapacağız. &gt; gist 5451b0c844f8c627aeca642387f0747d</p><p>Butonumuzu oluşturduk, aksiyon işlemini nerede yapacağını söyledik ve hangi event ile tetikleneceğini belirledik. Ardından view’umuzun merkezine ekledik.</p><h4>Bir göz atalım nasıl görünüyor ?</h4><img src="https://yusufozgul.com/upload-images/SigninWithApple/upload-899708053.png" width="100%"/><p>Şimdi sıra geldi bu işin merkezine. Butonumuzun aksiyon metoduna gelelim.</p><p>Burda ilk olarak AppleID Provider kullanacağız. Bu bize Bilgileri sağlayacak. Buna bir request oluşturarak hangi bilgileri alabileceğimizi belirliyoruz. Şu an kullanılabilir iki veri bulunuyor. Biri e-Posta diğeri tam isim. AppleID Provider’e bir request oluşturduk ve buna bize email ve tam isimi vermesini istedik. Sonra bir Controller oluşturduk. Bu controller’a gereken delegasyon ve içerik sağlayıcısını ( presentationContextProvider ) self olarak verdik.</p><pre><code><span class="keyword">@objc func</span> authAppleID()
+    {
+        <span class="keyword">let</span> appleIDProvider = <span class="type">ASAuthorizationAppleIDProvider</span>()
+        <span class="keyword">let</span> authRequest = appleIDProvider.<span class="call">createRequest</span>()
+        authRequest.<span class="property">requestedScopes</span> = [.<span class="dotAccess">email</span>, .<span class="dotAccess">fullName</span>]
+        
+        <span class="keyword">let</span> authController = <span class="type">ASAuthorizationController</span>(authorizationRequests: [authRequest])
+        authController.<span class="property">presentationContextProvider</span> = <span class="keyword">self</span>
+        authController.<span class="property">delegate</span> = <span class="keyword">self</span>
+        authController.<span class="call">performRequests</span>()
+        
+    }</pre></code><p>Şimdi aslında işlem bitti ancak daha da iyileştirmek en iyisi. Bir extension ekleyelim. Bu extension ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding’dan kalıtımını alsın.</p><p>Xcode’un istediğini yapalım ve presentationAnchor fonksiyonunu implementde edelim. İçine geri dönüş değerini verelim.</p><pre><code><span class="keyword">return self</span>.<span class="property">view</span>.<span class="property">window</span>!
+</code></pre><p>Şimdi de giriş yapılma işleminde hata oluşup olmadığını, başarılı giriş yapılmışsa eğer kullanıcı bilgilerini alalım.</p><pre><code><span class="keyword">extension</span> <span class="type">ViewController</span>: <span class="type">ASAuthorizationControllerDelegate</span>, <span class="type">ASAuthorizationControllerPresentationContextProviding</span>
+{
+    <span class="keyword">func</span> authorizationController(controller: <span class="type">ASAuthorizationController</span>, didCompleteWithAuthorization authorization: <span class="type">ASAuthorization</span>)
+    {
+        <span class="keyword">guard let</span> appleIDCredential = authorization.<span class="property">credential</span> <span class="keyword">as</span>? <span class="type">ASAuthorizationAppleIDCredential</span> <span class="keyword">else</span> { <span class="keyword">return</span> }
+        
+        <span class="call">print</span>(<span class="string">"USER:</span> \(appleIDCredential.<span class="property">user</span>)<span class="string">"</span>)
+        <span class="call">print</span>(<span class="string">"EMAIL:</span> \(appleIDCredential.<span class="property">email</span>!)<span class="string">"</span>)
+        <span class="call">print</span>(<span class="string">"FULL NAME:</span> \(appleIDCredential.<span class="property">fullName</span>!)<span class="string">"</span>)
+    }
+    
+    <span class="keyword">func</span> presentationAnchor(for controller: <span class="type">ASAuthorizationController</span>) -&gt; <span class="type">ASPresentationAnchor</span>
+    {
+        <span class="keyword">return self</span>.<span class="property">view</span>.<span class="property">window</span>!
+    }
+}</pre></code><p>İşleminizin bir sorunla karşılaşmadığını doğrulamak için guard let ile kontrolümüzü yaptık. Eğer sorun yoksa kayıt yapan kullanıcının verilerini konsola yazdırdık.</p><img src="https://yusufozgul.com/upload-images/SigninWithApple/upload-558219504.png" width="100%"/><p>)</p><p>Bilgilerimizi gerçek email ile kullanırsak ne oluyor, Apple’ın gizlilik için oluşturduğu mail ile kullanırsak kullanıcı bilgileri aşağıdaki gibi oluyor.</p><img src="https://yusufozgul.com/upload-images/SigninWithApple/upload-403950479.png" width="100%"/><p>Apple’ın bu WWDC’de tanıttığı güzel bir özelliği elimden geldiğince anlattım, sorularınız olursa yorum kısmına ya da blogumun iletişim kısmından bana ulaşabilirsiniz, bugsız günler 🙂</p><p>Kodlar İçin <a href="http://https://github.com/yusufozgul/SignWithAppleTutorial "GitHub Hesabım"">GitHub Hesabım</a></p><hr><p>Kaynaklar:</p><p>https://medium.com/q42-engineering/sign-in-with-apple-e45325cd9d0</p><p>https://developer.apple.com/sign-in-with-apple/get-started/</p>]]></content:encoded></item></channel></rss>
