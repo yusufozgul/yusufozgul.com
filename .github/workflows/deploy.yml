@@ -26,6 +26,6 @@ jobs:
       env:
         REPO: self
         BRANCH: deploy
-        FOLDER: ./build/Output
+        FOLDER: ./Output
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         MESSAGE: "Build: ({sha}) {msg}"
