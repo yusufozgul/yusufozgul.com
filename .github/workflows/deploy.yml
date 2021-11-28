@@ -26,5 +26,6 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_branch: deploy
-        destination_dir: '/build/Output'
+        destination_dir: ./build/Output
+        allow_empty_commit: true
     
