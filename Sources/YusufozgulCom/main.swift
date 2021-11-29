@@ -10,6 +10,7 @@ import LinkAttributesPublishPlugin
 import GistPublishPlugin
 import VerifyResourcesExistPublishPlugin
 import YoutubePublishPlugin
+import CNAMEPublishPlugin
 //import PublishGallery
 
 // This type acts as the configuration for your website.
@@ -51,7 +52,8 @@ try YusufozgulCom().publish(withTheme: .yusufozgulcom,
                                               .generateRSSFeed(including: [.blogs, .projects]),
                                               .removeAllItems(in: .blogs, matching: .init(matcher: { item in
                                                 item.metadata.isDraft ?? false
-                                              }))
+                                              })),
+                                              .installPlugin(.generateCNAME(with: ["yusufozgul.com", "www.yusufozgul.com"]))
                             ],
                             plugins: [.twitter(),
                                       .youtube(),

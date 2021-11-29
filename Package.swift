@@ -19,7 +19,8 @@ let package = Package(
                    .package(url: "https://github.com/thomaslupo/GistPublishPlugin", from: "0.1.0"),
                    .package(url: "https://github.com/wacumov/VerifyResourcesExistPublishPlugin", from: "0.1.0"),
                    .package(url: "https://github.com/tanabe1478/YoutubePublishPlugin.git", from: "0.1.0"),
-    ],
+                   .package(url: "https://github.com/SwiftyGuerrero/CNAMEPublishPlugin", from: "0.1.0")
+                  ],
     targets: [
         .executableTarget(name: "YusufozgulCom",
                           dependencies: [
@@ -32,6 +33,7 @@ let package = Package(
                             "GistPublishPlugin",
                             "VerifyResourcesExistPublishPlugin",
                             "YoutubePublishPlugin",
+                            "CNAMEPublishPlugin",
                           ])
     ]
 )
