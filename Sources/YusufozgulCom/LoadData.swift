@@ -52,7 +52,19 @@ class LoadData {
                             
                         ])
         
-        projects = Projects(items: [.init(name: "Wevent",
+        projects = Projects(items: [.init(name: "Fon Takip",
+                                          code: "fundapp",
+                                          subheader: "Yatırım fonlarınızı takip edin",
+                                          status: "Published",
+                                          status_css: "published",
+                                          appIcon: "/upload-images/fundApp/logo.png ",
+                                          role: "iOS Developer",
+                                          appStore_link: "https://apps.apple.com/tr/app/fon-takip/id1597147603",
+                                          gitHub_link: "",
+                                          technologies: ["SwiftUI", "App Clip", "Push Notifications", "Widget"],
+                                          paragraphs: ["Yatırım fonlarınızı takip etmek, fonlarınız hakkında bildirimler almak için yepyeni bir uygulama. Bildirimler sayesinde günün getirisini görün, widgetlar sayesinde her an izleyin. Getirilerinizi günlük olarak takip edin."],
+                                          screenShotLink: "/upload-images/fundApp/detailPage.png"),
+                                    .init(name: "Wevent",
                                           code: "wevent",
                                           subheader: "Events for a better you",
                                           status: "Published",
