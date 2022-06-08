@@ -9,6 +9,7 @@ description: iOS 16 brings new function to resize our cell without reload. Also 
 WWDC 2022 brings a lot of new features. One of them self resizing cell (it supports Collection View and Table View). Now we can easily resize cell with just one line code. Ok, let's see.
 
 iOS 16 has new variable for UICollectionView and UITableView `selfSizingInvalidation`. Its default value is enabled. If you use UIListContentConfiguration cell automatically resize when the configuration changed. Also, you can resize it whenever you want.
+This blog is only for manual self resizing. If you use UIListContentConfiguration it updates automatically.
 
 ### How to resize cell
 
