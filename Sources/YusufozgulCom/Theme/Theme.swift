@@ -74,7 +74,7 @@ struct ThemeHTMLFactory<Site: Website>: HTMLFactory {
                         .href("./blogs"),
                         .h1("🚀 Latest Articles")
                     ),
-                    .component(ThemeItemList(items: Array(context.allItems(sortedBy: \.date, order: .descending).filter { $0.sectionID.rawValue == YusufozgulCom.SectionID.blogs.rawValue }.prefix(3)), site: context.site)
+                    .component(ThemeItemList(items: Array(context.allItems(sortedBy: \.date, order: .descending).filter { $0.sectionID.rawValue == YusufozgulCom.SectionID.blogs.rawValue }.prefix(10)), site: context.site)
                     ),
                     .a(
                         .class("browse-all"),
