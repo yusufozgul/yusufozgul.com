@@ -52,7 +52,19 @@ class LoadData {
                             
                         ])
         
-        projects = Projects(items: [.init(name: "Fon Takip",
+        projects = Projects(items: [.init(name: "MockGen",
+                                          code: "mock-gen",
+                                          subheader: "Swift Mock Generator Xcode Extension",
+                                          status: "Published",
+                                          status_css: "published",
+                                          appIcon: "/upload-images/mock-gen/mockgen-icon.png",
+                                          role: "Developer",
+                                          appStore_link: "",
+                                          gitHub_link: "https://github.com/yusufozgul/MockGen",
+                                          technologies: ["SwiftUI", "Xcode Extension", "SwiftFormatter", "macOS"],
+                                          paragraphs: ["A simple Xcode extension for generate mock class."],
+                                          screenShotLink: "/upload-images/mock-gen/mockgen-icon.png"),
+                                    .init(name: "Fon Takip",
                                           code: "fundapp",
                                           subheader: "Yatırım fonlarınızı takip edin",
                                           status: "Published",
