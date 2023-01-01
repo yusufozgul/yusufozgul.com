@@ -1,11 +1,10 @@
-----
+---
 title: How I Automated Tracking My Habits
 date: 2023-01-01 20:00
 tags: Automation
 description: Quick look my automations about regular habits
 
-----
-
+---
 I have several habits and I try to not break the chain, but I’m lazy to check I did that. Because all my habits are digital, reading a book (e-reader), and learning language (apps). So I can track automatically my habits. But if I do not check them how do I see my chain? Let’s figure it out.
 
 ##### Automation for Reading
