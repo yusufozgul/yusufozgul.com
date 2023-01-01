@@ -1,6 +1,6 @@
 ----
 title: How I Automated Tracking My Habits
-date: DATE - 2023-01-01 20:00
+date: 2023-01-01 20:00
 tags: Automation
 description: Quick look my automations about regular habits
 
