@@ -54,7 +54,6 @@ try YusufozgulCom().publish(withTheme: .yusufozgulcom,
                                 .generateRSSFeed(including: [.blogs, .projects]),
                                 .removeAllItems(in: .blogs, matching: .init(matcher: \.metadata.shouldDelete)),
                                 .installPlugin(.generateCNAME(with: ["yusufozgul.com", "www.yusufozgul.com"])),
-                                .copyFile(at: "Resources/CF/_worker.js", to: "/"),
                             ],
                             plugins: [
                                 //.twitter(),
