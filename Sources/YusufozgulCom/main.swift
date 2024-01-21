@@ -2,7 +2,7 @@ import Foundation
 import Publish
 import Plot
 import ReadingTimePublishPlugin
-import TwitterPublishPlugin
+//import TwitterPublishPlugin
 import Splash
 import SplashPublishPlugin
 import ImageAttributesPublishPlugin
@@ -22,12 +22,13 @@ struct YusufozgulCom: Website {
         case projects
         case blogs
     }
-
+    
     struct ItemMetadata: WebsiteItemMetadata {
         let isDraft: Bool?
         let date: String
+        var shouldDelete: Bool { isDraft ?? false }
     }
-
+    
     // Update these properties to configure your website:
     var url = URL(string: "https://yusufozgul.com")!
     var name = "Yusuf Özgül | Blog | Resume | Portfolio"
@@ -46,22 +47,23 @@ try YusufozgulCom().publish(withTheme: .yusufozgulcom,
                             at: nil,
                             rssFeedSections: [.blogs, .projects],
                             rssFeedConfig: nil,
-                            additionalSteps: [.installPlugin(.readingTime(wordsPerMinute: 40)),
-                                              .generateSiteMap(),
-                                              .installPlugin(.verifyResourcesExist()),
-                                              .generateRSSFeed(including: [.blogs, .projects]),
-                                              .removeAllItems(in: .blogs, matching: .init(matcher: { item in
-                                                item.metadata.isDraft ?? false
-                                              })),
-                                              .installPlugin(.generateCNAME(with: ["yusufozgul.com", "www.yusufozgul.com"]))
+                            additionalSteps: [
+                                .installPlugin(.readingTime(wordsPerMinute: 40)),
+                                .generateSiteMap(),
+                                .installPlugin(.verifyResourcesExist()),
+                                .generateRSSFeed(including: [.blogs, .projects]),
+                                .removeAllItems(in: .blogs, matching: .init(matcher: \.metadata.shouldDelete)),
+                                .installPlugin(.generateCNAME(with: ["yusufozgul.com", "www.yusufozgul.com"])),
+                                .copyFile(at: "Resources/CF/_worker.js", to: "/"),
                             ],
-                            plugins: [.twitter(),
-                                      .youtube(),
-                                      .gist(renderer: ColorGistRenderer()),
-                                      .linkAttributes(),
-                                      .imageAttributes(),
-                                      .splash(withClassPrefix: ""),
-                                      //.publishGallery()
+                            plugins: [
+                                //.twitter(),
+                                .youtube(),
+                                .gist(renderer: ColorGistRenderer()),
+                                .linkAttributes(),
+                                .imageAttributes(),
+                                .splash(withClassPrefix: ""),
+                                //.publishGallery()
                             ])
 
 class ColorGistRenderer: GistRenderer {
