@@ -28,7 +28,7 @@ extension Node where Context == HTML.BodyContext {
                 })
             ),
             .raw("""
-            <iframe src="https://alpha-1.yusufozgul.com/nocodb/dashboard/#/nc/form/26193786-0a3e-47c8-8af4-2a735cec5871" width="100%" height="100%" style="border: none;"></iframe>
+            <iframe src="https://alpha-1.yusufozgul.com/nocodb/dashboard/#/nc/form/26193786-0a3e-47c8-8af4-2a735cec5871" width="100%" height="700" style="border: none;"></iframe>
             """)
         )
     }
