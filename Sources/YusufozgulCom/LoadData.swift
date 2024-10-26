@@ -21,7 +21,10 @@ class LoadData {
                             About(title: "iOS Developer",
                                   subtitle: "Trendyol",
                                   date: "Sep 2020 - Now",
-                                  description: ["I work in Trendyol mobile application development team."],
+                                  description: [
+                                      "Over the past year, I have been working on infrastructure projects as part of the iOS Platform team.",
+                                      "Contributed to developing the Trendyol e-commerce application for four years, participating in extensive refactoring projects and writing tests (Unit, Smoke, Snapshot, Regression)."
+                                  ],
                                   refLink: [[.link: "https://apps.apple.com/us/app/trendyol-alışveriş-moda/id524362642", .name: "AppStore"]]),
                             About(title: "iOS Developer",
                                   subtitle: "ILAO",
